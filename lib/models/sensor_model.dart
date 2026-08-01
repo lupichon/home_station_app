@@ -1,4 +1,4 @@
-const EMPTY_SENSOR_VALUE = '--';
+const emptySensorValue = '--';
 
 class Sensor {
     final String name;
@@ -9,7 +9,7 @@ class Sensor {
     Sensor({
         required this.name,
         required this.key,
-        this._value = EMPTY_SENSOR_VALUE,
+        this._value = emptySensorValue,
         this.unit = '',
     });
 
@@ -17,7 +17,7 @@ class Sensor {
 
     set value(String? newValue) {
         if (newValue == null || newValue.isEmpty) {
-          _value = EMPTY_SENSOR_VALUE;
+          _value = emptySensorValue;
         } 
         else {
           _value = newValue;
@@ -27,22 +27,18 @@ class Sensor {
 
 final temperatureSensor    = Sensor(name: 'Temperature',   key: 'temperature', unit: '°C');
 final humiditySensor       = Sensor(name: 'Humidity',      key: 'humidity',    unit: '%');
-final pressureSensor       = Sensor(name: 'Pressure',      key: 'pressure',    unit: 'hPa');
 final co2Sensor            = Sensor(name: 'CO₂',           key: 'co2',         unit: 'ppm');
-final covSensor            = Sensor(name: 'COV',           key: 'cov',         unit: 'IAQ');
 final luminositySensor     = Sensor(name: 'Luminosity',    key: 'luminosity',  unit: 'lux');
-final soundLevelSensor     = Sensor(name: 'Sound level',   key: 'sound_level', unit: 'dB');
 final motionSensor         = Sensor(name: 'Motion',        key: 'motion');
-final waterLeakSensor      = Sensor(name: 'Water leak',    key: 'water_leak');
+final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'obstacle');
+final soundSensor          = Sensor(name: 'Sound',         key: 'sound');
 
 final List<Sensor> sensors = [
     temperatureSensor,
     humiditySensor,  
-    pressureSensor,
     co2Sensor,
-    covSensor,
     luminositySensor,
-    soundLevelSensor,
     motionSensor,
-    waterLeakSensor,
+    obstacleSensor,
+    soundSensor,
 ];
