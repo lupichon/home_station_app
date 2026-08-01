@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 /// Interface que chaque transport doit implémenter.
 abstract class ConnectionService {
@@ -7,6 +8,8 @@ abstract class ConnectionService {
 
   bool get isConnected;
   String get statusMessage;
+
+  VoidCallback? onConnectionChanged;
 
   Future<void> connect();
   Future<void> disconnect();

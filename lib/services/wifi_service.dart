@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'connection_service.dart';
 
 /// Stub Wi-Fi — à implémenter.
@@ -13,6 +14,9 @@ class WifiService implements ConnectionService {
 
   @override
   String statusMessage = 'Not implemented';
+
+  @override
+  VoidCallback? onConnectionChanged;
 
   @override
   Future<void> connect() async {

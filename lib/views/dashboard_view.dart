@@ -62,6 +62,8 @@ class DashboardView extends StatelessWidget {
             sound:    boolVal(soundSensor),
             obstacle: boolVal(obstacleSensor),
           ),
+          const SizedBox(height: 20),
+          _LastUpdatedLabel(time: context.read<SensorController>().lastUpdated),
         ],
       ),
     );
@@ -566,6 +568,25 @@ class _BoolRow extends StatelessWidget {
               style: TextStyle(fontSize: 11, color: pillColor)),
         ),
       ],
+    );
+  }
+}
+
+class _LastUpdatedLabel extends StatelessWidget {
+  final DateTime? time;
+  const _LastUpdatedLabel({this.time});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = time == null
+        ? 'Aucune donnée reçue'
+        : 'Mis à jour à ${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}:${time!.second.toString().padLeft(2, '0')}';
+
+    return Center(
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+      ),
     );
   }
 }

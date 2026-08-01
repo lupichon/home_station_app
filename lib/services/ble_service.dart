@@ -24,6 +24,10 @@ class BleService implements ConnectionService {
   BluetoothDevice? _device;
   StreamSubscription? _scanSub;
   StreamSubscription? _notifySub;
+  StreamSubscription? _connectionStateSub;
+
+  @override
+  VoidCallback? onConnectionChanged;
 
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
 
@@ -82,10 +86,11 @@ class BleService implements ConnectionService {
       _notifySub = char.onValueReceived.listen(_onRawBytes);
 
       // Écouter la déconnexion
-      _device!.connectionState.listen((state) {
+      _connectionStateSub = _device!.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
           isConnected = false;
           statusMessage = 'Disconnected';
+          onConnectionChanged?.call(); // ← notifie le controller
         }
       });
 
@@ -141,6 +146,7 @@ class BleService implements ConnectionService {
   Future<void> disconnect() async {
     _scanSub?.cancel();
     _notifySub?.cancel();
+    _connectionStateSub?.cancel();  // ← ajoute
     await _device?.disconnect();
     _device = null;
     isConnected = false;

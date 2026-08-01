@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/connection_type.dart';
 import '../services/connection_service.dart';
-import '../services/mqtt_service.dart';
+import '../services/lora_service.dart';
 import '../services/ble_service.dart';
 import '../services/wifi_service.dart';
 import 'sensor_controller.dart';
@@ -56,9 +56,14 @@ class ConnectionController extends ChangeNotifier {
 
   Future<void> _startService(ConnectionType type) async {
     _service = _buildService(type);
+
+    _service!.onConnectionChanged = () {
+      notifyListeners(); 
+    };
+
     _dataSub = _service!.dataStream.listen((data) {
       sensorController.updateFromJson(data);
-      notifyListeners(); // pour rafraîchir statusMessage / isConnected
+      notifyListeners();
     });
 
     await _service!.connect();
@@ -74,7 +79,7 @@ class ConnectionController extends ChangeNotifier {
 
   ConnectionService _buildService(ConnectionType type) {
     return switch (type) {
-      ConnectionType.lora => MqttService(),
+      ConnectionType.lora => LoraService(),
       ConnectionType.ble  => BleService(),
       ConnectionType.wifi => WifiService(),
     };
