@@ -61,6 +61,7 @@ class DashboardView extends StatelessWidget {
             motion:   boolVal(motionSensor),
             sound:    boolVal(soundSensor),
             obstacle: boolVal(obstacleSensor),
+            vibration: boolVal(vibrationSensor)
           ),
           const SizedBox(height: 20),
           _LastUpdatedLabel(time: context.read<SensorController>().lastUpdated),
@@ -484,11 +485,13 @@ class _DetectionCard extends StatelessWidget {
   final bool motion;
   final bool sound;
   final bool obstacle;
+  final bool vibration;
 
   const _DetectionCard({
     required this.motion,
     required this.sound,
     required this.obstacle,
+    required this.vibration,
   });
 
   @override
@@ -518,6 +521,14 @@ class _DetectionCard extends StatelessWidget {
             active: obstacle,
             onLabel: 'Présent',
             offLabel: 'Aucun',
+          ),
+          const SizedBox(height: 10),
+          _BoolRow(                          
+            icon: Icons.vibration,
+            label: 'Vibration',
+            active: vibration,
+            onLabel: 'Détectée',
+            offLabel: 'Aucune',
           ),
         ],
       ),

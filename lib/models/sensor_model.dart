@@ -32,6 +32,7 @@ final luminositySensor     = Sensor(name: 'Luminosity',    key: 'luminosity',  u
 final motionSensor         = Sensor(name: 'Motion',        key: 'motion');
 final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'obstacle');
 final soundSensor          = Sensor(name: 'Sound',         key: 'sound');
+final vibrationSensor      = Sensor(name: 'Vibration',     key: 'vibration');
 
 final List<Sensor> sensors = [
     temperatureSensor,
@@ -41,4 +42,5 @@ final List<Sensor> sensors = [
     motionSensor,
     obstacleSensor,
     soundSensor,
+    vibrationSensor,
 ];

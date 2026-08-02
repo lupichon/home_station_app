@@ -124,9 +124,10 @@ class BleService implements ConnectionService {
 
       // 3 booleans (uint8)
       final flags = data[14];
-      final motion   = (flags >> 0) & 0x01 == 1;
-      final sound    = (flags >> 1) & 0x01 == 1;
-      final obstacle = (flags >> 2) & 0x01 == 1;
+      final motion    = (flags >> 0) & 0x01 == 1;
+      final sound     = (flags >> 1) & 0x01 == 1;
+      final obstacle  = (flags >> 2) & 0x01 == 1;
+      final vibration = (flags >> 3) & 0x01 == 1;
 
       _controller.add({
         temperatureSensor.key: temperature,
@@ -136,6 +137,7 @@ class BleService implements ConnectionService {
         motionSensor.key:      motion,
         soundSensor.key:       sound,
         obstacleSensor.key:    obstacle,
+        vibrationSensor.key:   vibration,
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');

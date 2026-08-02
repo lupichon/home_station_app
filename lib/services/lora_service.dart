@@ -93,7 +93,8 @@ class LoraService implements ConnectionService {
       final key = (m['field']['fieldName'] as String).toLowerCase();
       final value = m['value'];
       // Convertit 0/1 en bool pour les champs booléens
-      if (key == motionSensor.key || key == soundSensor.key || key == obstacleSensor.key) {
+      if (key == motionSensor.key || key == soundSensor.key || key == obstacleSensor.key
+          || key == vibrationSensor.key) {
         result[key] = value == 1 || value == true;
       } else {
         result[key] = value;
