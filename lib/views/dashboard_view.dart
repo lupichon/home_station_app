@@ -53,15 +53,17 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 10),
           _Co2Card(value: numVal(co2Sensor)),
           const SizedBox(height: 10),
+          _GasCard(gasState: gasStateSensor.value),
+          const SizedBox(height: 10),
           _LuminosityCard(value: numVal(luminositySensor)),
           const SizedBox(height: 20),
           const _SectionLabel('Detection'),
           const SizedBox(height: 10),
           _DetectionCard(
-            motion:   boolVal(motionSensor),
-            sound:    boolVal(soundSensor),
-            obstacle: boolVal(obstacleSensor),
-            vibration: boolVal(vibrationSensor)
+            motion:    boolVal(motionSensor),
+            sound:     boolVal(soundSensor),
+            obstacle:  boolVal(obstacleSensor),
+            vibration: boolVal(vibrationSensor),
           ),
           const SizedBox(height: 20),
           _LastUpdatedLabel(time: context.read<SensorController>().lastUpdated),
@@ -255,8 +257,7 @@ class _HumidityCard extends StatelessWidget {
           const SizedBox(height: 10),
           v == null
               ? const Text('–',
-                  style:
-                      TextStyle(color: AppColors.textMuted, fontSize: 22))
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 22))
               : RichText(
                   text: TextSpan(children: [
                     TextSpan(
@@ -282,11 +283,9 @@ class _HumidityCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('0',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('100%',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
             ],
           ),
         ],
@@ -302,7 +301,7 @@ class _Co2Card extends StatelessWidget {
   const _Co2Card({this.value});
 
   (String label, Color color) _quality(double v) {
-    if (v < 600) return ('Bon', AppColors.green);
+    if (v < 600)  return ('Bon', AppColors.green);
     if (v < 1000) return ('Modéré', AppColors.amber);
     return ('Élevé', AppColors.red);
   }
@@ -327,19 +326,17 @@ class _Co2Card extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
-                  border:
-                      Border.all(color: color.withValues(alpha: 0.3)),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
                 ),
-                child:
-                    Text(label, style: TextStyle(fontSize: 11, color: color)),
+                child: Text(label,
+                    style: TextStyle(fontSize: 11, color: color)),
               ),
             ],
           ),
           const SizedBox(height: 8),
           v == null
               ? const Text('–',
-                  style:
-                      TextStyle(color: AppColors.textMuted, fontSize: 24))
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 24))
               : RichText(
                   text: TextSpan(children: [
                     TextSpan(
@@ -365,15 +362,55 @@ class _Co2Card extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('400',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('1000',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('2000 ppm',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Gas card ─────────────────────────────────────────────────────────────────
+
+class _GasCard extends StatelessWidget {
+  final String gasState;
+  const _GasCard({required this.gasState});
+
+  (String label, Color color) _quality(String raw) {
+    switch (int.tryParse(raw) ?? -1) {
+      case 0:  return ('Bon',    AppColors.green);
+      case 1:  return ('Modéré', AppColors.amber);
+      case 2:  return ('Élevé',  AppColors.red);
+      case 3:  return ('Danger', AppColors.red);
+      default: return ('–',      AppColors.textMuted);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = _quality(gasState);
+
+    return _Card(
+      child: Row(
+        children: [
+          const _CardLabel(icon: Icons.air, text: 'Gaz / Fumée'),
+          const Spacer(),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
+            ),
+            child: Text(label,
+                style: TextStyle(fontSize: 11, color: color)),
           ),
         ],
       ),
@@ -399,8 +436,7 @@ class _LuminosityCard extends StatelessWidget {
           const SizedBox(height: 8),
           v == null
               ? const Text('–',
-                  style:
-                      TextStyle(color: AppColors.textMuted, fontSize: 24))
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 24))
               : RichText(
                   text: TextSpan(children: [
                     TextSpan(
@@ -427,14 +463,11 @@ class _LuminosityCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('0',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('1000',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('2000 lux',
-                  style: TextStyle(
-                      fontSize: 10, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
             ],
           ),
         ],
@@ -523,7 +556,7 @@ class _DetectionCard extends StatelessWidget {
             offLabel: 'Aucun',
           ),
           const SizedBox(height: 10),
-          _BoolRow(                          
+          _BoolRow(
             icon: Icons.vibration,
             label: 'Vibration',
             active: vibration,
@@ -535,6 +568,8 @@ class _DetectionCard extends StatelessWidget {
     );
   }
 }
+
+// ─── Bool row ─────────────────────────────────────────────────────────────────
 
 class _BoolRow extends StatelessWidget {
   final IconData icon;
@@ -554,7 +589,7 @@ class _BoolRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pillColor = active ? AppColors.green : AppColors.textMuted;
-    final pillBg = active ? AppColors.greenBg : AppColors.surfaceBorder;
+    final pillBg    = active ? AppColors.greenBg : AppColors.surfaceBorder;
 
     return Row(
       children: [
@@ -567,13 +602,11 @@ class _BoolRow extends StatelessWidget {
         ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: pillBg,
             borderRadius: BorderRadius.circular(20),
-            border:
-                Border.all(color: pillColor.withValues(alpha: 0.4)),
+            border: Border.all(color: pillColor.withValues(alpha: 0.4)),
           ),
           child: Text(active ? onLabel : offLabel,
               style: TextStyle(fontSize: 11, color: pillColor)),
@@ -582,6 +615,8 @@ class _BoolRow extends StatelessWidget {
     );
   }
 }
+
+// ─── Last updated label ───────────────────────────────────────────────────────
 
 class _LastUpdatedLabel extends StatelessWidget {
   final DateTime? time;

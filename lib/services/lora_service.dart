@@ -90,12 +90,15 @@ class LoraService implements ConnectionService {
 
     final result = <String, dynamic>{};
     for (final m in fieldsList) {
-      final key = (m['field']['fieldName'] as String).toLowerCase();
+      final key = (m['field']['fieldName'] as String);
       final value = m['value'];
       // Convertit 0/1 en bool pour les champs booléens
       if (key == motionSensor.key || key == soundSensor.key || key == obstacleSensor.key
           || key == vibrationSensor.key) {
         result[key] = value == 1 || value == true;
+      }
+      else if (key == gasStateSensor.key) {
+    	result[key] = (value as num).toInt(); // 2.0 → 2
       } else {
         result[key] = value;
       }

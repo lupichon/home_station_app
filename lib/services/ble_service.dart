@@ -122,12 +122,12 @@ class BleService implements ConnectionService {
       final luminosity  = bd.getFloat32(8,  Endian.little);
       final co2         = bd.getUint16(12, Endian.little);
 
-      // 3 booleans (uint8)
       final flags = data[14];
       final motion    = (flags >> 0) & 0x01 == 1;
       final sound     = (flags >> 1) & 0x01 == 1;
       final obstacle  = (flags >> 2) & 0x01 == 1;
       final vibration = (flags >> 3) & 0x01 == 1;
+      final gasLevel  = (flags >> 4) & 0x03;
 
       _controller.add({
         temperatureSensor.key: temperature,
@@ -138,6 +138,7 @@ class BleService implements ConnectionService {
         soundSensor.key:       sound,
         obstacleSensor.key:    obstacle,
         vibrationSensor.key:   vibration,
+        gasStateSensor.key:    gasLevel,
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');

@@ -25,14 +25,15 @@ class Sensor {
     }
 }
 
-final temperatureSensor    = Sensor(name: 'Temperature',   key: 'temperature', unit: '°C');
-final humiditySensor       = Sensor(name: 'Humidity',      key: 'humidity',    unit: '%');
-final co2Sensor            = Sensor(name: 'CO₂',           key: 'co2',         unit: 'ppm');
-final luminositySensor     = Sensor(name: 'Luminosity',    key: 'luminosity',  unit: 'lux');
-final motionSensor         = Sensor(name: 'Motion',        key: 'motion');
-final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'obstacle');
-final soundSensor          = Sensor(name: 'Sound',         key: 'sound');
-final vibrationSensor      = Sensor(name: 'Vibration',     key: 'vibration');
+final temperatureSensor    = Sensor(name: 'Temperature',   key: 'TEMPERATURE', unit: '°C');
+final humiditySensor       = Sensor(name: 'Humidity',      key: 'HUMIDITY',    unit: '%');
+final co2Sensor            = Sensor(name: 'CO₂',           key: 'CO2',         unit: 'ppm');
+final luminositySensor     = Sensor(name: 'Luminosity',    key: 'LUMINOSITY',  unit: 'lux');
+final motionSensor         = Sensor(name: 'Motion',        key: 'MOTION');
+final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'OBSTACLE');
+final soundSensor          = Sensor(name: 'Sound',         key: 'SOUND');
+final vibrationSensor      = Sensor(name: 'Vibration',     key: 'VIBRATION');
+final gasStateSensor       = Sensor(name: 'Gas',           key: 'GASSTATE');
 
 final List<Sensor> sensors = [
     temperatureSensor,
@@ -43,4 +44,5 @@ final List<Sensor> sensors = [
     obstacleSensor,
     soundSensor,
     vibrationSensor,
+    gasStateSensor,
 ];
