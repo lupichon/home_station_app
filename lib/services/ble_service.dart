@@ -15,7 +15,7 @@ class BleService implements ConnectionService {
   static final _targetName   = dotenv.env['BLE_DEVICE_NAME'] ?? '';
   static final _serviceUuid  = Guid(dotenv.env['BLE_SERVICE_UUID'] ?? '');
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
-  static const int _nbFloats    = 3;
+  static const int _nbFloats    = 4;
   static const int _nbInt16     = 1;
   static const int _nbFlagByte  = 1;
 
@@ -120,9 +120,11 @@ class BleService implements ConnectionService {
       final temperature = bd.getFloat32(0,  Endian.little);
       final humidity    = bd.getFloat32(4,  Endian.little);
       final luminosity  = bd.getFloat32(8,  Endian.little);
-      final co2         = bd.getUint16(12, Endian.little);
+      final pressure    = bd.getFloat32(12, Endian.little);
+      
+      final co2         = bd.getUint16(16, Endian.little);
 
-      final flags = data[14];
+      final flags = data[18];
       final motion    = (flags >> 0) & 0x01 == 1;
       final sound     = (flags >> 1) & 0x01 == 1;
       final obstacle  = (flags >> 2) & 0x01 == 1;
@@ -139,6 +141,7 @@ class BleService implements ConnectionService {
         obstacleSensor.key:    obstacle,
         vibrationSensor.key:   vibration,
         gasStateSensor.key:    gasLevel,
+        pressureSensor.key:    pressure,
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');

@@ -55,6 +55,8 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 10),
           _GasCard(gasState: gasStateSensor.value),
           const SizedBox(height: 10),
+          _PressureCard(value: numVal(pressureSensor)),
+          const SizedBox(height: 10),
           _LuminosityCard(value: numVal(luminositySensor)),
           const SizedBox(height: 20),
           const _SectionLabel('Detection'),
@@ -632,6 +634,88 @@ class _LastUpdatedLabel extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+      ),
+    );
+  }
+}
+
+// ─── Pressure card ────────────────────────────────────────────────────────────
+
+class _PressureCard extends StatelessWidget {
+  final double? value;
+  const _PressureCard({this.value});
+
+  (String label, Color color) _quality(double v) {
+    if (v < 1000) return ('Basse',   AppColors.blue);
+    if (v < 1013) return ('Normale', AppColors.green);
+    if (v < 1020) return ('Haute',   AppColors.amber);
+    return ('Très haute', AppColors.red);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final v = value;
+    final (label, color) =
+        v == null ? ('–', AppColors.textMuted) : _quality(v);
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const _CardLabel(icon: Icons.compress, text: 'Pression'),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Text(label,
+                    style: TextStyle(fontSize: 11, color: color)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          v == null
+              ? const Text('–',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 24))
+              : RichText(
+                  text: TextSpan(children: [
+                    TextSpan(
+                        text: v.toStringAsFixed(1),
+                        style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary)),
+                    const TextSpan(
+                        text: ' hPa',
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary)),
+                  ]),
+                ),
+          const SizedBox(height: 10),
+          _BarIndicator(
+            fraction: v == null ? 0 : ((v - 980) / 60).clamp(0, 1),
+            color: color,
+          ),
+          const SizedBox(height: 4),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('980',
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+              Text('1013',
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+              Text('1040 hPa',
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+            ],
+          ),
+        ],
       ),
     );
   }

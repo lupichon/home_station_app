@@ -34,6 +34,7 @@ final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'OBSTACLE');
 final soundSensor          = Sensor(name: 'Sound',         key: 'SOUND');
 final vibrationSensor      = Sensor(name: 'Vibration',     key: 'VIBRATION');
 final gasStateSensor       = Sensor(name: 'Gas',           key: 'GASSTATE');
+final pressureSensor       = Sensor(name: 'Pressure',      key: 'PRESSURE',    unit: 'hPa');
 
 final List<Sensor> sensors = [
     temperatureSensor,
@@ -45,4 +46,5 @@ final List<Sensor> sensors = [
     soundSensor,
     vibrationSensor,
     gasStateSensor,
+    pressureSensor,
 ];
