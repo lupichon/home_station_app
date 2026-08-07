@@ -35,6 +35,8 @@ final soundSensor          = Sensor(name: 'Sound',         key: 'SOUND');
 final vibrationSensor      = Sensor(name: 'Vibration',     key: 'VIBRATION');
 final gasStateSensor       = Sensor(name: 'Gas',           key: 'GASSTATE');
 final pressureSensor       = Sensor(name: 'Pressure',      key: 'PRESSURE',    unit: 'hPa');
+final vocSensor            = Sensor(name: 'VOC',           key: 'VOC');
+final noxSensor            = Sensor(name: 'NOx',           key: 'NOX');
 
 final List<Sensor> sensors = [
     temperatureSensor,
@@ -47,4 +49,6 @@ final List<Sensor> sensors = [
     vibrationSensor,
     gasStateSensor,
     pressureSensor,
+    vocSensor,
+    noxSensor,
 ];

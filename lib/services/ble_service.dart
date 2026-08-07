@@ -16,7 +16,7 @@ class BleService implements ConnectionService {
   static final _serviceUuid  = Guid(dotenv.env['BLE_SERVICE_UUID'] ?? '');
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
   static const int _nbFloats    = 4;
-  static const int _nbInt16     = 1;
+  static const int _nbInt16     = 3;
   static const int _nbFlagByte  = 1;
 
   static const int _expectedLength = _nbFloats * 4 + _nbInt16 * 2 + _nbFlagByte; // 19 bytes
@@ -123,8 +123,10 @@ class BleService implements ConnectionService {
       final pressure    = bd.getFloat32(12, Endian.little);
       
       final co2         = bd.getUint16(16, Endian.little);
+      final voc         = bd.getUint16(18, Endian.little);
+      final nox         = bd.getUint16(20, Endian.little);
 
-      final flags = data[18];
+      final flags = data[22];
       final motion    = (flags >> 0) & 0x01 == 1;
       final sound     = (flags >> 1) & 0x01 == 1;
       final obstacle  = (flags >> 2) & 0x01 == 1;
@@ -142,6 +144,8 @@ class BleService implements ConnectionService {
         vibrationSensor.key:   vibration,
         gasStateSensor.key:    gasLevel,
         pressureSensor.key:    pressure,
+        vocSensor.key:         voc,
+        noxSensor.key:         nox,
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');
