@@ -25,7 +25,7 @@ class Sensor {
     }
 }
 
-final temperatureSensor    = Sensor(name: 'Temperature',   key: 'TEMPERATURE', unit: '°C');
+final temperatureSensor    = Sensor(name: 'Temp',          key: 'TEMPERATURE', unit: '°C');
 final humiditySensor       = Sensor(name: 'Humidity',      key: 'HUMIDITY',    unit: '%');
 final co2Sensor            = Sensor(name: 'CO₂',           key: 'CO2',         unit: 'ppm');
 final luminositySensor     = Sensor(name: 'Luminosity',    key: 'LUMINOSITY',  unit: 'lux');

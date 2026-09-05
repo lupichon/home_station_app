@@ -7,8 +7,10 @@ import '../widgets/badge.dart';
 import '../../utils/thresholds_handler.dart';
 
 class LuminosityCard extends StatelessWidget {
+  final String? name;
   final double? value;
-  const LuminosityCard({super.key, this.value});
+  final String? unit;
+  const LuminosityCard({super.key, this.name, this.value, this.unit});
   
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class LuminosityCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AppCardLabel(icon: Icons.wb_sunny_outlined, text: 'Luminosité'),
+              AppCardLabel(icon: Icons.wb_sunny_outlined, text: name ?? ''),
               const Spacer(),
               AppBadge(label: label, color: color),
             ],
@@ -38,8 +40,8 @@ class LuminosityCard extends StatelessWidget {
                             fontSize: 24,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textPrimary)),
-                    const TextSpan(
-                        text: ' lux',
+                    TextSpan(
+                        text: unit != null ? ' $unit' : '',
                         style: TextStyle(
                             fontSize: 13, color: AppColors.textSecondary)),
                   ]),

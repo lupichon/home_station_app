@@ -14,6 +14,8 @@ import 'dashboard/luminosity_card.dart';
 import 'dashboard/atmospheric_card.dart';
 import 'dashboard/detection_card.dart';
 import 'settings_view.dart';
+import 'history_route.dart';
+import 'atmospheric_history_menu.dart';
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -41,7 +43,7 @@ class DashboardView extends StatelessWidget {
     final vibration     = boolVal(vibrationSensor);
     final gasStateValue = gasStateSensor.value;
 
-    final score = computeRoomScore(co2: co2, voc: voc, nox: nox, gasState: gasStateValue);
+    final score = computeRoomScore(temperature: temperature, humidity: humidity, co2: co2, voc: voc, nox: nox, gasState: gasStateValue);
 
     return Scaffold(
       appBar: AppBar(
@@ -77,30 +79,61 @@ class DashboardView extends StatelessWidget {
           const AppSectionLabel('Ambiance'),
           const SizedBox(height: 10),
           Row(children: [
-            Expanded(child: TemperatureCard(value: temperature)),
+            Expanded(child: GestureDetector(
+                              onTap: () => openHistory(context, title: temperatureSensor.name, fieldKey: temperatureSensor.key, unit: temperatureSensor.unit),
+                              child: TemperatureCard(name: temperatureSensor.name, value: temperature, unit: temperatureSensor.unit),
+                              ),
+                            ),
             const SizedBox(width: 10),
-            Expanded(child: HumidityCard(value: humidity)),
+            Expanded(child: GestureDetector(
+                              onTap: () => openHistory(context, title: humiditySensor.name, fieldKey: humiditySensor.key, unit: humiditySensor.unit),
+                              child: HumidityCard(name: humiditySensor.name, value: humidity, unit: humiditySensor.unit),
+                              ),
+                            ),
           ]),
           const SizedBox(height: 10),
-          LuminosityCard(value: luminosity),
+          GestureDetector(
+            onTap: () => openHistory(context, title: luminositySensor.name, fieldKey: luminositySensor.key, unit: luminositySensor.unit),
+            child: LuminosityCard(name: luminositySensor.name, value: luminosity, unit: luminositySensor.unit),
+            ),
           const SizedBox(height: 20),
           const AppSectionLabel('Capteurs atmosphériques'),
           const SizedBox(height: 10),
-          AtmosphericCard(
-            co2: co2,
-            pressure: pressure,
-            voc: voc,
-            nox: nox,
-            gasState: gasStateValue 
+          GestureDetector(
+                onTap: () => openAtmosphericMenu(context, fields: [
+                  (title: co2Sensor.name,      fieldKey: co2Sensor.key,      unit: co2Sensor.unit),
+                  (title: pressureSensor.name, fieldKey: pressureSensor.key, unit: pressureSensor.unit),
+                  (title: vocSensor.name,      fieldKey: vocSensor.key,      unit: vocSensor.unit),
+                  (title: noxSensor.name,      fieldKey: noxSensor.key,      unit: noxSensor.unit),
+                  (title: gasStateSensor.name, fieldKey: gasStateSensor.key, unit: gasStateSensor.unit),
+                ]),
+              child: AtmosphericCard(
+              co2Name: co2Sensor.name,
+              co2Value: co2,
+              co2Unit: co2Sensor.unit,
+              pressureName: pressureSensor.name,
+              pressureValue: pressure,
+              pressureUnit: pressureSensor.unit,
+              vocName: vocSensor.name,
+              vocValue: voc,
+              noxName: noxSensor.name,
+              noxValue: nox,
+              gasName: gasStateSensor.name,
+              gasStateValue: gasStateValue,
+            ),
           ),
           const SizedBox(height: 20),
           const AppSectionLabel('Détection'),
           const SizedBox(height: 10),
           DetectionCard(
-            motion: motion,
-            sound: sound,
-            obstacle: obstacle,
-            vibration: vibration,
+            motionName: motionSensor.name,
+            motionValue: motion,
+            soundName: soundSensor.name,
+            soundValue: sound,
+            obstacleName: obstacleSensor.name,
+            obstacleValue: obstacle,
+            vibrationName: vibrationSensor.name,
+            vibrationValue: vibration,
           ),
           const SizedBox(height: 20),
           AppLastUpdatedLabel(

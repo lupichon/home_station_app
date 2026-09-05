@@ -3,18 +3,26 @@ import '../widgets/card.dart';
 import '../widgets/status_row.dart';
 
 class DetectionCard extends StatelessWidget {
-  final bool motion;
-  final bool sound;
-  final bool obstacle;
-  final bool vibration;
+  final String motionName;
+  final bool motionValue;
+  final String soundName;
+  final bool soundValue;
+  final String obstacleName;
+  final bool obstacleValue;
+  final String vibrationName;
+  final bool vibrationValue;
   // gasState retiré, plus besoin ici
 
   const DetectionCard({
     super.key,
-    required this.motion,
-    required this.sound,
-    required this.obstacle,
-    required this.vibration,
+    required this.motionName,
+    required this.motionValue,
+    required this.soundName,
+    required this.soundValue,
+    required this.obstacleName,
+    required this.obstacleValue,
+    required this.vibrationName,
+    required this.vibrationValue,
     // gasState retiré des paramètres
   });
 
@@ -25,14 +33,14 @@ class DetectionCard extends StatelessWidget {
     return AppCard(
       child: Column(
         children: [
-          AppBoolRow(icon: Icons.directions_walk_outlined, label: 'Mouvement',
-              active: motion, onLabel: 'Détecté', offLabel: 'Aucun'),
-          AppBoolRow(icon: Icons.volume_up_outlined, label: 'Son',
-              active: sound, onLabel: 'Détecté', offLabel: 'Calme'),
-          AppBoolRow(icon: Icons.sensors_outlined, label: 'Obstacle',
-              active: obstacle, onLabel: 'Présent', offLabel: 'Aucun'),
-          AppBoolRow(icon: Icons.vibration, label: 'Vibration',
-              active: vibration, onLabel: 'Détectée', offLabel: 'Aucune'),
+          AppBoolRow(icon: Icons.directions_walk_outlined, label: motionName,
+              active: motionValue, onLabel: 'Détecté', offLabel: 'Aucun'),
+          AppBoolRow(icon: Icons.volume_up_outlined, label: soundName,
+              active: soundValue, onLabel: 'Détecté', offLabel: 'Calme'),
+          AppBoolRow(icon: Icons.sensors_outlined, label: obstacleName,
+              active: obstacleValue, onLabel: 'Présent', offLabel: 'Aucun'),
+          AppBoolRow(icon: Icons.vibration, label: vibrationName,
+              active: vibrationValue, onLabel: 'Détectée', offLabel: 'Aucune'),
           // AppStatusRow du gaz supprimée d'ici
         ],
       ),

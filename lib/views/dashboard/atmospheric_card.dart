@@ -8,26 +8,37 @@ import '../widgets/status_row.dart';
 import '../../utils/thresholds_handler.dart';
 
 class AtmosphericCard extends StatelessWidget {
-  final double? co2;
-  final double? pressure;
-  final double? voc;
-  final double? nox;
-  final String? gasState;
+  final String? co2Name;
+  final double? co2Value;
+  final String? co2Unit; 
+  final String? pressureName;
+  final double? pressureValue;
+  final String? pressureUnit; 
+  final String? vocName;
+  final double? vocValue;
+  final String? noxName;
+  final double? noxValue;
+  final String? gasName;
+  final String? gasStateValue;
 
-  const AtmosphericCard({super.key, this.co2, this.pressure, this.voc, this.nox, this.gasState});
+  const AtmosphericCard({super.key, this.co2Name, this.co2Value, this.co2Unit, 
+                                    this.pressureName, this.pressureValue, this.pressureUnit,
+                                    this.vocName, this.vocValue,
+                                    this.noxName, this.noxValue,
+                                    this.gasName, this.gasStateValue});
 
   @override
   Widget build(BuildContext context) {
-    final (co2Label, co2Color) = co2 == null
-        ? ('–', AppColors.textMuted) : classify(co2!, co2Thresholds);
-    final (pressLabel, pressColor) = pressure == null
-        ? ('–', AppColors.textMuted) : classify(pressure!, pressureThresholds);
-    final (vocLabel, vocColor) = voc == null
-        ? ('–', AppColors.textMuted) : classify(voc!, vocThresholds);
-    final (noxLabel, noxColor) = nox == null
-        ? ('–', AppColors.textMuted) : classify(nox!, noxThresholds);
-    final (gasLabel, gasColor) = int.tryParse(gasState ?? '') == null
-        ? ('–', AppColors.textMuted) : classify(int.parse(gasState!).toDouble(), gasThresholds);
+    final (co2Label, co2Color) = co2Value == null
+        ? ('–', AppColors.textMuted) : classify(co2Value!, co2Thresholds);
+    final (pressLabel, pressColor) = pressureValue == null
+        ? ('–', AppColors.textMuted) : classify(pressureValue!, pressureThresholds);
+    final (vocLabel, vocColor) = vocValue == null
+        ? ('–', AppColors.textMuted) : classify(vocValue!, vocThresholds);
+    final (noxLabel, noxColor) = noxValue == null
+        ? ('–', AppColors.textMuted) : classify(noxValue!, noxThresholds);
+    final (gasLabel, gasColor) = int.tryParse(gasStateValue ?? '') == null
+        ? ('–', AppColors.textMuted) : classify(int.parse(gasStateValue!).toDouble(), gasThresholds);
 
     return AppCard(
       child: Column(
@@ -39,22 +50,22 @@ class AtmosphericCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppCardLabel(icon: Icons.eco_outlined, text: 'CO₂'),
+                    AppCardLabel(icon: Icons.eco_outlined, text: co2Name ?? ''),
                     const SizedBox(height: 6),
-                    co2 == null
+                    co2Value == null
                         ? const Text('–',
                             style: TextStyle(
                                 color: AppColors.textMuted, fontSize: 22))
                         : RichText(
                             text: TextSpan(children: [
                               TextSpan(
-                                  text: co2!.toStringAsFixed(0),
+                                  text: co2Value!.toStringAsFixed(0),
                                   style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w500,
                                       color: co2Color)),
-                              const TextSpan(
-                                  text: ' ppm',
+                              TextSpan(
+                                  text: co2Unit != null ? ' $co2Unit' : '',
                                   style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary)),
@@ -75,23 +86,23 @@ class AtmosphericCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppCardLabel(icon: Icons.compress, text: 'Pression'),
+                    AppCardLabel(icon: Icons.compress, text: pressureName ?? ''),
                     const SizedBox(height: 6),
-                    pressure == null
+                    pressureValue == null
                         ? const Text('–',
                             style: TextStyle(
                                 color: AppColors.textMuted, fontSize: 22))
                         : RichText(
                             text: TextSpan(children: [
                               TextSpan(
-                                  text: pressure!.toStringAsFixed(1),
+                                  text: pressureValue!.toStringAsFixed(1),
                                   style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textPrimary)),
-                              const TextSpan(
-                                  text: ' hPa',
-                                  style: TextStyle(
+                              TextSpan(
+                                  text: pressureUnit != null ? ' $pressureUnit' : '',
+                                  style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.textSecondary)),
                             ]),
@@ -105,16 +116,16 @@ class AtmosphericCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           AppBarIndicator(
-            fraction: co2 == null ? 0 : ((co2! - 400) / 1600),
+            fraction: co2Value == null ? 0 : ((co2Value! - 400) / 1600),
             color: co2Color,
           ),
           const SizedBox(height: 4),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('400', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               Text('1000', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
-              Text('2000 ppm', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
+              Text('2000 ${co2Unit != null ? ' $co2Unit' : ''}', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
             ],
           ),
 
@@ -124,21 +135,21 @@ class AtmosphericCard extends StatelessWidget {
             child: Divider(color: AppColors.surfaceBorder, height: 0.5),
           ),
 
-          const AppCardLabel(icon: Icons.air, text: 'VOC / NOx'),
+          AppCardLabel(icon: Icons.air, text: '${vocName ?? ''} / ${noxName ?? ''}'),
           const SizedBox(height: 10),
 
           // VOC row
           Row(
             children: [
               const SizedBox(width: 4),
-              const Text('VOC',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text('${vocName ?? ''}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(width: 8),
-              voc == null
+              vocValue == null
                   ? const Text('–',
                       style: TextStyle(
                           color: AppColors.textMuted, fontSize: 15))
-                  : Text(voc!.toStringAsFixed(0),
+                  : Text(vocValue!.toStringAsFixed(0),
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -149,7 +160,7 @@ class AtmosphericCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           AppBarIndicator(
-            fraction: voc == null ? 0 : (voc! / 500),
+            fraction: vocValue == null ? 0 : (vocValue! / 500),
             color: vocColor,
           ),
           const SizedBox(height: 10),
@@ -158,14 +169,14 @@ class AtmosphericCard extends StatelessWidget {
           Row(
             children: [
               const SizedBox(width: 4),
-              const Text('NOx',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text('${noxName ?? ''}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(width: 8),
-              nox == null
+              noxValue == null
                   ? const Text('–',
                       style: TextStyle(
                           color: AppColors.textMuted, fontSize: 15))
-                  : Text(nox!.toStringAsFixed(0),
+                  : Text(noxValue!.toStringAsFixed(0),
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -176,7 +187,7 @@ class AtmosphericCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           AppBarIndicator(
-            fraction: nox == null ? 0 : (nox! / 500),
+            fraction: noxValue == null ? 0 : (noxValue! / 500),
             color: noxColor,
           ),
 
@@ -189,7 +200,7 @@ class AtmosphericCard extends StatelessWidget {
           const SizedBox(height: 6),
           AppStatusRow(
             icon: Icons.local_fire_department_outlined,
-            label: 'Gaz / Fumée',
+            label: '${gasName ?? ''}',
             statusLabel: gasLabel,
             color: gasColor,
           ),

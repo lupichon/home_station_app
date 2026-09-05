@@ -7,8 +7,10 @@ import '../theme/app_theme.dart';
 import '../../utils/thresholds_handler.dart';
 
 class TemperatureCard extends StatelessWidget {
+  final String? name;
   final double? value;
-  const TemperatureCard({super.key, this.value});
+  final String? unit;
+  const TemperatureCard({super.key, this.name, this.value, this.unit});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class TemperatureCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AppCardLabel(icon: Icons.thermostat_outlined, text: 'Temp'),
+              AppCardLabel(icon: Icons.thermostat_outlined, text: name ?? ''),
               const Spacer(),
               AppBadge(label: label, color: color),
             ],
@@ -39,9 +41,9 @@ class TemperatureCard extends StatelessWidget {
                             fontSize: 26,
                             fontWeight: FontWeight.w500,
                             color: color)),
-                    const TextSpan(
-                        text: '°C',
-                        style: TextStyle(
+                    TextSpan(
+                        text: unit != null ? ' $unit' : '',
+                        style: const TextStyle(
                             fontSize: 13, color: AppColors.textSecondary)),
                   ]),
                 ),

@@ -77,8 +77,6 @@ class LoraService implements ConnectionService {
       body: jsonEncode({'query': query}),
     );
 
-    debugPrint('Datacake response: ${response.body}', wrapWidth: 10000);
-
     if (response.statusCode != 200) {
       throw Exception('Datacake HTTP ${response.statusCode}');
     }

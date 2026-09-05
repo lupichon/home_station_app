@@ -7,8 +7,10 @@ import '../widgets/badge.dart';
 import '../../utils/thresholds_handler.dart';
 
 class HumidityCard extends StatelessWidget {
+  final String? name;
   final double? value;
-  const HumidityCard({super.key, this.value});
+  final String? unit;
+  const HumidityCard({super.key, this.name, this.value, this.unit});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class HumidityCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AppCardLabel(icon: Icons.water_drop_outlined, text: 'Humidité'),
+              AppCardLabel(icon: Icons.water_drop_outlined, text: name ?? ''),
               const Spacer(),
               AppBadge(label: label, color: color),
             ],
@@ -39,8 +41,8 @@ class HumidityCard extends StatelessWidget {
                             fontSize: 26,
                             fontWeight: FontWeight.w500,
                             color: AppColors.blue)),
-                    const TextSpan(
-                        text: '%',
+                    TextSpan(
+                        text: unit ?? '',
                         style: TextStyle(
                             fontSize: 13, color: AppColors.textSecondary)),
                   ]),
