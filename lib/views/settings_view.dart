@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/connection_controller.dart';
 import '../models/connection_type.dart';
-import '../theme/app_theme.dart';
+import 'theme/app_theme.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});

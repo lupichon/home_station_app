@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'controllers/sensor_controller.dart';
 import 'controllers/connection_controller.dart';
 import 'views/dashboard_view.dart';
-import 'theme/app_theme.dart';
+import 'views/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

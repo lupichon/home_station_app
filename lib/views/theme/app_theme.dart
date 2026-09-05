@@ -25,6 +25,8 @@ class AppColors {
   static const redBg         = Color(0x1AE05050);
   static const blue          = Color(0xFF378ADD);
   static const blueBg        = Color(0x1A378ADD);
+
+  // 
 }
 
 class AppTheme {
