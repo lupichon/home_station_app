@@ -4,7 +4,6 @@ import '../widgets/card.dart';
 import '../widgets/badge.dart';
 import '../widgets/card_label.dart';  
 import '../widgets/bar_indicator.dart';
-import '../widgets/status_row.dart';
 import '../../utils/thresholds_handler.dart';
 
 class AtmosphericCard extends StatelessWidget {
@@ -191,15 +190,6 @@ class AtmosphericCard extends StatelessWidget {
             color: noxColor,
           ),
 
-          // Gaz 
-          const SizedBox(height: 14),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 0),
-            child: Divider(color: AppColors.surfaceBorder, height: 0.5),
-          ),
-          const SizedBox(height: 6),
-          
-          // Gaz
           // Gaz
           const SizedBox(height: 14),
           const Padding(

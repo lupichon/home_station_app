@@ -101,11 +101,11 @@ double noxScore(double v) => _piecewiseLinear(v, [
   (noxHigh    , noxHighScore),
 ]);
 
-double gasScore(double code) => _piecewiseLinear(code, [
-  (gas_state.gasGood.toDouble(),     gasLowScore),
-  (gas_state.gasModerate.toDouble(), gasModerateScore),
-  (gas_state.gasElevated.toDouble(), gasElevatedScore),
-  (gas_state.gasDanger.toDouble(),   gasDangerScore),
+double gasScore(double v) => _piecewiseLinear(v, [
+  (gasGood    , gasLowScore),
+  (gasModerate, gasModerateScore),
+  (gasElevated, gasElevatedScore),
+  (gasDanger  ,   gasDangerScore),
 ]);
 
 // ─── Score global de la pièce ───────────────────────────────────────────────
