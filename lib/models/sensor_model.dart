@@ -33,7 +33,7 @@ final motionSensor         = Sensor(name: 'Motion',        key: 'MOTION');
 final obstacleSensor       = Sensor(name: 'Obstacle',      key: 'OBSTACLE');
 final soundSensor          = Sensor(name: 'Sound',         key: 'SOUND');
 final vibrationSensor      = Sensor(name: 'Vibration',     key: 'VIBRATION');
-final gasStateSensor       = Sensor(name: 'Gas',           key: 'GASSTATE');
+final gasRawSensor         = Sensor(name: 'Gas',           key: 'GASSTATE');
 final pressureSensor       = Sensor(name: 'Pressure',      key: 'PRESSURE',    unit: 'hPa');
 final vocSensor            = Sensor(name: 'VOC',           key: 'VOC');
 final noxSensor            = Sensor(name: 'NOx',           key: 'NOX');
@@ -47,7 +47,7 @@ final List<Sensor> sensors = [
     obstacleSensor,
     soundSensor,
     vibrationSensor,
-    gasStateSensor,
+    gasRawSensor,
     pressureSensor,
     vocSensor,
     noxSensor,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../views/theme/app_theme.dart';
-import 'gas_state.dart' as gas_state;
 
 // Colors
 const lowColor      = AppColors.blue;
@@ -54,10 +53,10 @@ const luminosityLowLight  = 300.0;
 const luminosityNormal    = 1000.0;
 const luminosityBright    = 2000.0;
 
-const gasGood     = gas_state.gasGood     +1.0; // code 0  → value < 1
-const gasModerate = gas_state.gasModerate +1.0; // code 1  → value < 2
-const gasElevated = gas_state.gasElevated +1.0; // code 2  → value < 3
-const gasDanger   = gas_state.gasDanger   +1.0; // code 3+ → else
+const gasGood     = 20.0;
+const gasModerate = 50.0;
+const gasElevated = 100.0;
+const gasDanger   = 200.0;
 
 const temperatureLow      = 18.0;
 const temperatureNormal   = 22.0;

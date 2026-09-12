@@ -38,13 +38,13 @@ class DashboardView extends StatelessWidget {
     final luminosity    = numVal(luminositySensor);
     final temperature   = numVal(temperatureSensor);
     final humidity      = numVal(humiditySensor);
+    final gasRaw        = numVal(gasRawSensor);
     final motion        = boolVal(motionSensor);
     final sound         = boolVal(soundSensor);
     final obstacle      = boolVal(obstacleSensor);
     final vibration     = boolVal(vibrationSensor);
-    final gasStateValue = gasStateSensor.value;
 
-    final score = computeRoomScore(temperature: temperature, humidity: humidity, co2: co2, voc: voc, nox: nox, gasState: gasStateValue);
+    final score = computeRoomScore(temperature: temperature, humidity: humidity, co2: co2, voc: voc, nox: nox, gasRaw: gasRaw);
 
     return Scaffold(
       appBar: AppBar(
@@ -111,7 +111,7 @@ class DashboardView extends StatelessWidget {
                   (title: pressureSensor.name, fieldKey: pressureSensor.key, unit: pressureSensor.unit),
                   (title: vocSensor.name,      fieldKey: vocSensor.key,      unit: vocSensor.unit),
                   (title: noxSensor.name,      fieldKey: noxSensor.key,      unit: noxSensor.unit),
-                  (title: gasStateSensor.name, fieldKey: gasStateSensor.key, unit: gasStateSensor.unit),
+                  (title: gasRawSensor.name,   fieldKey: gasRawSensor.key,   unit: gasRawSensor.unit),
                 ]),
               child: AtmosphericCard(
               co2Name: co2Sensor.name,
@@ -124,8 +124,8 @@ class DashboardView extends StatelessWidget {
               vocValue: voc,
               noxName: noxSensor.name,
               noxValue: nox,
-              gasName: gasStateSensor.name,
-              gasStateValue: gasStateValue,
+              gasName: gasRawSensor.name,
+              gasRawValue: gasRaw,
             ),
           ),
           const SizedBox(height: 20),

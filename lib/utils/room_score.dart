@@ -1,7 +1,5 @@
 import 'thresholds_handler.dart';
 import '../views/theme/app_theme.dart';
-import 'gas_state.dart' as gas_state;
-
 
 const hardMinTemp = 12.0;
 const goodMinTemp = 20.0;
@@ -103,7 +101,7 @@ double noxScore(double v) => _piecewiseLinear(v, [
   (noxHigh    , noxHighScore),
 ]);
 
-double gasScore(int code) => _piecewiseLinear(code.toDouble(), [
+double gasScore(double code) => _piecewiseLinear(code, [
   (gas_state.gasGood.toDouble(),     gasLowScore),
   (gas_state.gasModerate.toDouble(), gasModerateScore),
   (gas_state.gasElevated.toDouble(), gasElevatedScore),
@@ -118,7 +116,7 @@ double computeRoomScore({
   double? co2,
   double? voc,
   double? nox,
-  String? gasState,
+  double? gasRaw,
 }) {
   double weightedSum = 0;
   double usedWeight = 0;
@@ -148,9 +146,8 @@ double computeRoomScore({
     usedWeight += noxWeight;
   }
 
-  final gasCode = int.tryParse(gasState ?? '');
-  if (gasCode != null) {
-    weightedSum += gasScore(gasCode) * gasWeight;
+  if (gasRaw != null) {
+    weightedSum += gasScore(gasRaw) * gasWeight;
     usedWeight += gasWeight;
   }
 

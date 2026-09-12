@@ -19,13 +19,13 @@ class AtmosphericCard extends StatelessWidget {
   final String? noxName;
   final double? noxValue;
   final String? gasName;
-  final String? gasStateValue;
+  final double? gasRawValue;
 
   const AtmosphericCard({super.key, this.co2Name, this.co2Value, this.co2Unit, 
                                     this.pressureName, this.pressureValue, this.pressureUnit,
                                     this.vocName, this.vocValue,
                                     this.noxName, this.noxValue,
-                                    this.gasName, this.gasStateValue});
+                                    this.gasName, this.gasRawValue});
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +37,8 @@ class AtmosphericCard extends StatelessWidget {
         ? ('–', AppColors.textMuted) : classify(vocValue!, vocThresholds);
     final (noxLabel, noxColor) = noxValue == null
         ? ('–', AppColors.textMuted) : classify(noxValue!, noxThresholds);
-    final (gasLabel, gasColor) = int.tryParse(gasStateValue ?? '') == null
-        ? ('–', AppColors.textMuted) : classify(int.parse(gasStateValue!).toDouble(), gasThresholds);
+    final (gasLabel, gasColor) = gasRawValue == null
+        ? ('–', AppColors.textMuted) : classify(gasRawValue!, gasThresholds);
 
     return AppCard(
       child: Column(
@@ -198,10 +198,38 @@ class AtmosphericCard extends StatelessWidget {
             child: Divider(color: AppColors.surfaceBorder, height: 0.5),
           ),
           const SizedBox(height: 6),
-          AppStatusRow(
-            icon: Icons.local_fire_department_outlined,
-            label: '${gasName ?? ''}',
-            statusLabel: gasLabel,
+          
+          // Gaz
+          // Gaz
+          const SizedBox(height: 14),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 0),
+            child: Divider(color: AppColors.surfaceBorder, height: 0.5),
+          ),
+          const SizedBox(height: 6),
+
+          Row(
+            children: [
+              const SizedBox(width: 4),
+              Text('${gasName ?? ''}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              const SizedBox(width: 8),
+              gasRawValue == null
+                  ? const Text('–',
+                      style: TextStyle(
+                          color: AppColors.textMuted, fontSize: 15))
+                  : Text(gasRawValue!.toStringAsFixed(0),
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary)),
+              const Spacer(),
+              AppBadge(label: gasLabel, color: gasColor),
+            ],
+          ),
+          const SizedBox(height: 6),
+          AppBarIndicator(
+            fraction: gasRawValue == null ? 0 : (gasRawValue! / 2500),
             color: gasColor,
           ),
         ],

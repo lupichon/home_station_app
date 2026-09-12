@@ -94,9 +94,6 @@ class LoraService implements ConnectionService {
       if (key == motionSensor.key || key == soundSensor.key || key == obstacleSensor.key
           || key == vibrationSensor.key) {
         result[key] = value == 1 || value == true;
-      }
-      else if (key == gasStateSensor.key) {
-    	result[key] = (value as num).toInt(); // 2.0 → 2
       } else {
         result[key] = value;
       }

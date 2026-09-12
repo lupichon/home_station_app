@@ -18,10 +18,10 @@ class BleService implements ConnectionService {
   static final _timeSyncUuid = Guid(dotenv.env['BLE_TIME_SYNC_UUID'] ?? '');
   static final _alarmTargetUuid = Guid(dotenv.env['BLE_ALARM_TARGET_UUID'] ?? '');
   static const int _nbFloats    = 4;
-  static const int _nbInt16     = 3;
+  static const int _nbInt16     = 4;
   static const int _nbFlagByte  = 1;
 
-  static const int _expectedLength = _nbFloats * 4 + _nbInt16 * 2 + _nbFlagByte; // 19 bytes
+  static const int _expectedLength = _nbFloats * 4 + _nbInt16 * 2 + _nbFlagByte; 
 
   BluetoothDevice? _device;
   StreamSubscription? _scanSub;
@@ -139,13 +139,13 @@ class BleService implements ConnectionService {
       final co2         = bd.getUint16(16, Endian.little);
       final voc         = bd.getUint16(18, Endian.little);
       final nox         = bd.getUint16(20, Endian.little);
+      final gasRaw      = bd.getUint16(22, Endian.little);
 
-      final flags = data[22];
+      final flags = data[24];
       final motion    = (flags >> 0) & 0x01 == 1;
       final sound     = (flags >> 1) & 0x01 == 1;
       final obstacle  = (flags >> 2) & 0x01 == 1;
       final vibration = (flags >> 3) & 0x01 == 1;
-      final gasLevel  = (flags >> 4) & 0x03;
 
       _controller.add({
         temperatureSensor.key: temperature,
@@ -156,7 +156,7 @@ class BleService implements ConnectionService {
         soundSensor.key:       sound,
         obstacleSensor.key:    obstacle,
         vibrationSensor.key:   vibration,
-        gasStateSensor.key:    gasLevel,
+        gasRawSensor.key:      gasRaw,
         pressureSensor.key:    pressure,
         vocSensor.key:         voc,
         noxSensor.key:         nox,
