@@ -15,7 +15,7 @@ import 'dashboard/atmospheric_card.dart';
 import 'dashboard/detection_card.dart';
 import 'settings_view.dart';
 import 'history_route.dart';
-import 'atmospheric_history_menu.dart';
+import 'selector_history_menu.dart';
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -100,7 +100,7 @@ class DashboardView extends StatelessWidget {
           const AppSectionLabel('Capteurs atmosphériques'),
           const SizedBox(height: 10),
           GestureDetector(
-                onTap: () => openAtmosphericMenu(context, fields: [
+                onTap: () => openSelectorMenu(context, title: 'Capteurs atmosphériques', fields: [
                   (title: co2Sensor.name,      fieldKey: co2Sensor.key,      unit: co2Sensor.unit),
                   (title: pressureSensor.name, fieldKey: pressureSensor.key, unit: pressureSensor.unit),
                   (title: vocSensor.name,      fieldKey: vocSensor.key,      unit: vocSensor.unit),
@@ -125,15 +125,23 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 20),
           const AppSectionLabel('Détection'),
           const SizedBox(height: 10),
-          DetectionCard(
-            motionName: motionSensor.name,
-            motionValue: motion,
-            soundName: soundSensor.name,
-            soundValue: sound,
-            obstacleName: obstacleSensor.name,
-            obstacleValue: obstacle,
-            vibrationName: vibrationSensor.name,
-            vibrationValue: vibration,
+          GestureDetector(
+            onTap: () => openSelectorMenu(context, title: 'Détection', fields: [
+              (title: motionSensor.name, fieldKey: motionSensor.key, unit: motionSensor.unit),
+              (title: soundSensor.name, fieldKey: soundSensor.key, unit: soundSensor.unit),
+              (title: obstacleSensor.name, fieldKey: obstacleSensor.key, unit: obstacleSensor.unit),
+              (title: vibrationSensor.name, fieldKey: vibrationSensor.key, unit: vibrationSensor.unit),
+            ]),
+            child: DetectionCard(
+              motionName: motionSensor.name,
+              motionValue: motion,
+              soundName: soundSensor.name,
+              soundValue: sound,
+              obstacleName: obstacleSensor.name,
+              obstacleValue: obstacle,
+              vibrationName: vibrationSensor.name,
+              vibrationValue: vibration,
+            ),
           ),
           const SizedBox(height: 20),
           AppLastUpdatedLabel(
