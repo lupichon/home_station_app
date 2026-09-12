@@ -22,14 +22,13 @@ class SettingsView extends StatelessWidget {
           const SizedBox(height: 8),
           ...ConnectionType.values.map((type) {
             final isActive = conn.activeType == type;
-            final isWifi = type == ConnectionType.wifi;
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: _ConnectionTile(
                 type: type,
                 isActive: isActive,
-                isDisabled: isWifi,
-                onTap: isWifi ? null : () => conn.switchTo(type),
+                isDisabled: false,          
+                onTap: () => conn.switchTo(type), 
               ),
             );
           }),
