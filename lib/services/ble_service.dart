@@ -15,6 +15,7 @@ class BleService implements ConnectionService {
   static final _targetName   = dotenv.env['BLE_DEVICE_NAME'] ?? '';
   static final _serviceUuid  = Guid(dotenv.env['BLE_SERVICE_UUID'] ?? '');
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
+  static final _timeSyncUuid = Guid(dotenv.env['BLE_TIME_SYNC_UUID'] ?? '');
   static const int _nbFloats    = 4;
   static const int _nbInt16     = 3;
   static const int _nbFlagByte  = 1;
@@ -81,6 +82,11 @@ class BleService implements ConnectionService {
         orElse: () => throw Exception('Characteristic UUID not found'),
       );
 
+      final timeSyncChar = service.characteristics.firstWhere(
+        (c) => c.uuid == _timeSyncUuid,
+        orElse: () => throw Exception('Time Sync Characteristic UUID not found'),
+      );
+
       // Activer les notifications
       await char.setNotifyValue(true);
       _notifySub = char.onValueReceived.listen(_onRawBytes);
@@ -96,6 +102,7 @@ class BleService implements ConnectionService {
 
       isConnected = true;
       statusMessage = 'Connected';
+      await _syncTime(timeSyncChar);
     } on TimeoutException catch (e) {
       isConnected = false;
       statusMessage = e.message ?? 'Scan timeout';
@@ -149,6 +156,20 @@ class BleService implements ConnectionService {
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');
+    }
+  }
+
+    Future<void> _syncTime(BluetoothCharacteristic timeSyncChar) async {
+    try {
+      final epoch = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+
+      final bytes = Uint8List(4);
+      ByteData.sublistView(bytes).setUint32(0, epoch, Endian.little);
+
+      await timeSyncChar.write(bytes, withoutResponse: false);
+      debugPrint('Time sync sent: $epoch');
+    } catch (e) {
+      debugPrint('Time sync failed: $e');
     }
   }
 
