@@ -16,6 +16,7 @@ class BleService implements ConnectionService {
   static final _serviceUuid  = Guid(dotenv.env['BLE_SERVICE_UUID'] ?? '');
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
   static final _timeSyncUuid = Guid(dotenv.env['BLE_TIME_SYNC_UUID'] ?? '');
+  static final _alarmTargetUuid = Guid(dotenv.env['BLE_ALARM_TARGET_UUID'] ?? '');
   static const int _nbFloats    = 4;
   static const int _nbInt16     = 3;
   static const int _nbFlagByte  = 1;
@@ -26,6 +27,7 @@ class BleService implements ConnectionService {
   StreamSubscription? _scanSub;
   StreamSubscription? _notifySub;
   StreamSubscription? _connectionStateSub;
+  BluetoothCharacteristic? _alarmTargetChar;
 
   @override
   VoidCallback? onConnectionChanged;
@@ -85,6 +87,11 @@ class BleService implements ConnectionService {
       final timeSyncChar = service.characteristics.firstWhere(
         (c) => c.uuid == _timeSyncUuid,
         orElse: () => throw Exception('Time Sync Characteristic UUID not found'),
+      );
+
+      _alarmTargetChar = service.characteristics.firstWhere(
+        (c) => c.uuid == _alarmTargetUuid,
+        orElse: () => throw Exception('Alarm Target Characteristic UUID not found'),
       );
 
       // Activer les notifications
@@ -159,7 +166,7 @@ class BleService implements ConnectionService {
     }
   }
 
-    Future<void> _syncTime(BluetoothCharacteristic timeSyncChar) async {
+  Future<void> _syncTime(BluetoothCharacteristic timeSyncChar) async {
     try {
       final epoch = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
 
@@ -172,6 +179,29 @@ class BleService implements ConnectionService {
       debugPrint('Time sync failed: $e');
     }
   }
+
+  Future<void> setAlarm(DateTime targetTime) async {
+    if (_alarmTargetChar == null) {
+      throw Exception('Not connected: alarm characteristic unavailable');
+    }
+
+    final epoch = targetTime.toUtc().millisecondsSinceEpoch ~/ 1000;
+
+    final bytes = Uint8List(4);
+    ByteData.sublistView(bytes).setUint32(0, epoch, Endian.little);
+
+    await _alarmTargetChar!.write(bytes, withoutResponse: false);
+  }
+
+  Future<void> cancelAlarm() async {
+    if (_alarmTargetChar == null) {
+      throw Exception('Not connected: alarm characteristic unavailable');
+    }
+
+    final bytes = Uint8List(4); 
+    await _alarmTargetChar!.write(bytes, withoutResponse: false);
+  }
+
 
   @override
   Future<void> disconnect() async {

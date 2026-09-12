@@ -14,6 +14,7 @@ import 'dashboard/luminosity_card.dart';
 import 'dashboard/atmospheric_card.dart';
 import 'dashboard/detection_card.dart';
 import 'settings_view.dart';
+import 'alarm_view.dart';
 import 'history_route.dart';
 import 'selector_history_menu.dart';
 
@@ -65,6 +66,11 @@ class DashboardView extends StatelessWidget {
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SettingsView())),
           ),
+          IconButton(
+            icon: const Icon(Icons.alarm_add_outlined), 
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const AlarmView())),
+          )
         ],
       ),
       body: ListView(

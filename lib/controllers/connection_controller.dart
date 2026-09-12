@@ -20,6 +20,11 @@ class ConnectionController extends ChangeNotifier {
   bool get isConnected => _service?.isConnected ?? false;
   String get statusMessage => _service?.statusMessage ?? 'Disconnected';
 
+  DateTime? _alarmTarget;
+  DateTime? get alarmTarget => _alarmTarget;
+  bool get isAlarmArmed => _alarmTarget != null;
+  bool get supportsAlarm => _service is BleService && isConnected;
+
   ConnectionController(this.sensorController) {
     _loadPreferenceAndConnect();
   }
@@ -89,5 +94,25 @@ class ConnectionController extends ChangeNotifier {
   void dispose() {
     _teardown();
     super.dispose();
+  }
+
+  Future<void> setAlarm(DateTime targetTime) async {
+    final service = _service;
+    if (service is! BleService) {
+      throw Exception('Alarm is only supported over BLE for now');
+    }
+    await service.setAlarm(targetTime);
+    _alarmTarget = targetTime; // ← ajouté
+    notifyListeners();          // ← ajouté
+  }
+
+   Future<void> cancelAlarm() async {
+    final service = _service;
+    if (service is! BleService) {
+      throw Exception('Alarm is only supported over BLE for now');
+    }
+    await service.cancelAlarm();
+    _alarmTarget = null;  // ← ajouté
+    notifyListeners();    // ← ajouté
   }
 }
