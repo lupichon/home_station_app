@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../controllers/connection_controller.dart';
+import '../controllers/alarm_controller.dart';
 import 'theme/app_theme.dart';
 import 'widgets/section_label.dart';
 
@@ -19,7 +19,7 @@ class _AlarmViewState extends State<AlarmView> {
   @override
   void initState() {
     super.initState();
-    final existing = context.read<ConnectionController>().alarmTarget;
+    final existing = context.read<AlarmController>().alarmTarget;
     final base = existing ?? DateTime.now().add(const Duration(minutes: 5));
     _selectedDate = DateTime(base.year, base.month, base.day);
     _selectedTime = TimeOfDay.fromDateTime(base);
@@ -52,15 +52,8 @@ class _AlarmViewState extends State<AlarmView> {
   }
 
   Future<void> _confirm() async {
-    final controller = context.read<ConnectionController>();
+    final controller = context.read<AlarmController>();
     final target = _selectedDateTime;
-
-    if (target.isBefore(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('L\'heure choisie est déjà passée')),
-      );
-      return;
-    }
 
     try {
       await controller.setAlarm(target);
@@ -77,7 +70,7 @@ class _AlarmViewState extends State<AlarmView> {
   }
 
   Future<void> _cancel() async {
-    final controller = context.read<ConnectionController>();
+    final controller = context.read<AlarmController>();
     try {
       await controller.cancelAlarm();
       if (mounted) {
@@ -94,7 +87,7 @@ class _AlarmViewState extends State<AlarmView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<ConnectionController>();
+    final controller = context.watch<AlarmController>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Réveil')),

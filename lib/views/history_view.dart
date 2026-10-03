@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../services/datacake_history_service.dart';
+import '../controllers/history_controller.dart';
+import '../models/history_model.dart';
 import 'theme/app_theme.dart';
 
 class HistoryView extends StatefulWidget {
@@ -20,56 +21,50 @@ class HistoryView extends StatefulWidget {
 }
 
 class _HistoryViewState extends State<HistoryView> {
-  late Future<List<HistoryPoint>> _future;
-  Duration _lookback = const Duration(days: 1);
+  late final HistoryController _controller;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    _controller = HistoryController(fieldKey: widget.fieldKey);
   }
 
-  void _load() {
-    _future = DatacakeHistoryService().fetchHistory(
-      fieldKey: widget.fieldKey,
-      lookback: _lookback,
-      resolution: '5 minutes',
-    );
-  }
-
-  void _setLookback(Duration d) {
-    setState(() {
-      _lookback = d;
-      _load();
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Column(
-        children: [
-          _RangeSelector(current: _lookback, onChanged: _setLookback),
-          Expanded(
-            child: FutureBuilder<List<HistoryPoint>>(
-              future: _future,
-              builder: (context, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snap.hasError) {
-                  return Center(child: Text('Erreur : ${snap.error}'));
-                }
-                final points = snap.data!;
-                if (points.isEmpty) {
-                  return const Center(child: Text('Aucune donnée sur cette période.'));
-                }
-                return _LineChart(points: points, unit: widget.unit);
-              },
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) => Column(
+          children: [
+            _RangeSelector(
+                current: _controller.lookback, onChanged: _controller.setLookback),
+            Expanded(
+              child: FutureBuilder<List<HistoryPoint>>(
+                future: _controller.points,
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snap.hasError) {
+                    return Center(child: Text('Erreur : ${snap.error}'));
+                  }
+                  final points = snap.data!;
+                  if (points.isEmpty) {
+                    return const Center(child: Text('Aucune donnée sur cette période.'));
+                  }
+                  return _LineChart(points: points, unit: widget.unit);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

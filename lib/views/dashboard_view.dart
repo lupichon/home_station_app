@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../controllers/connection_controller.dart';
 import '../controllers/sensor_controller.dart';
 import '../models/sensor_model.dart';
-import '../utils/room_score.dart';  
 import 'theme/app_theme.dart';
 import 'widgets/section_label.dart';
 import 'widgets/last_updated_label.dart';
@@ -26,25 +25,25 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final conn = context.watch<ConnectionController>();
-    context.watch<SensorController>();
+    final sensorCtrl = context.watch<SensorController>();
+    final m = sensorCtrl.sensors;
 
-    double? numVal(Sensor s) => double.tryParse(s.value);
-    bool boolVal(Sensor s) => s.value == 'true';
+    double? numVal(Sensor s) => sensorCtrl.number(s);
+    bool boolVal(Sensor s) => sensorCtrl.flag(s);
 
-    final co2           = numVal(co2Sensor);
-    final voc           = numVal(vocSensor);
-    final nox           = numVal(noxSensor);
-    final pressure      = numVal(pressureSensor);
-    final luminosity    = numVal(luminositySensor);
-    final temperature   = numVal(temperatureSensor);
-    final humidity      = numVal(humiditySensor);
-    final gasRaw        = numVal(gasRawSensor);
-    final motion        = boolVal(motionSensor);
-    final sound         = boolVal(soundSensor);
-    final obstacle      = boolVal(obstacleSensor);
-    final vibration     = boolVal(vibrationSensor);
-
-    final score = computeRoomScore(temperature: temperature, humidity: humidity, co2: co2, voc: voc, nox: nox, gasRaw: gasRaw);
+    final co2           = numVal(m.co2);
+    final voc           = numVal(m.voc);
+    final nox           = numVal(m.nox);
+    final pressure      = numVal(m.pressure);
+    final luminosity    = numVal(m.luminosity);
+    final temperature   = numVal(m.temperature);
+    final humidity      = numVal(m.humidity);
+    final gasRaw        = numVal(m.gasRaw);
+    final motion        = boolVal(m.motion);
+    final sound         = boolVal(m.sound);
+    final obstacle      = boolVal(m.obstacle);
+    final vibration     = boolVal(m.vibration);
+    final score         = sensorCtrl.roomScore;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,45 +85,45 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 10),
           Row(children: [
             Expanded(child: GestureDetector(
-                              onTap: () => openHistory(context, title: temperatureSensor.name, fieldKey: temperatureSensor.key, unit: temperatureSensor.unit),
-                              child: TemperatureCard(name: temperatureSensor.name, value: temperature, unit: temperatureSensor.unit),
+                              onTap: () => openHistory(context, title: m.temperature.name, fieldKey: m.temperature.key, unit: m.temperature.unit),
+                              child: TemperatureCard(name: m.temperature.name, value: temperature, unit: m.temperature.unit),
                               ),
                             ),
             const SizedBox(width: 10),
             Expanded(child: GestureDetector(
-                              onTap: () => openHistory(context, title: humiditySensor.name, fieldKey: humiditySensor.key, unit: humiditySensor.unit),
-                              child: HumidityCard(name: humiditySensor.name, value: humidity, unit: humiditySensor.unit),
+                              onTap: () => openHistory(context, title: m.humidity.name, fieldKey: m.humidity.key, unit: m.humidity.unit),
+                              child: HumidityCard(name: m.humidity.name, value: humidity, unit: m.humidity.unit),
                               ),
                             ),
           ]),
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: () => openHistory(context, title: luminositySensor.name, fieldKey: luminositySensor.key, unit: luminositySensor.unit),
-            child: LuminosityCard(name: luminositySensor.name, value: luminosity, unit: luminositySensor.unit),
+            onTap: () => openHistory(context, title: m.luminosity.name, fieldKey: m.luminosity.key, unit: m.luminosity.unit),
+            child: LuminosityCard(name: m.luminosity.name, value: luminosity, unit: m.luminosity.unit),
             ),
           const SizedBox(height: 20),
           const AppSectionLabel('Capteurs atmosphériques'),
           const SizedBox(height: 10),
           GestureDetector(
                 onTap: () => openSelectorMenu(context, title: 'Capteurs atmosphériques', fields: [
-                  (title: co2Sensor.name,      fieldKey: co2Sensor.key,      unit: co2Sensor.unit),
-                  (title: pressureSensor.name, fieldKey: pressureSensor.key, unit: pressureSensor.unit),
-                  (title: vocSensor.name,      fieldKey: vocSensor.key,      unit: vocSensor.unit),
-                  (title: noxSensor.name,      fieldKey: noxSensor.key,      unit: noxSensor.unit),
-                  (title: gasRawSensor.name,   fieldKey: gasRawSensor.key,   unit: gasRawSensor.unit),
+                  (title: m.co2.name,      fieldKey: m.co2.key,      unit: m.co2.unit),
+                  (title: m.pressure.name, fieldKey: m.pressure.key, unit: m.pressure.unit),
+                  (title: m.voc.name,      fieldKey: m.voc.key,      unit: m.voc.unit),
+                  (title: m.nox.name,      fieldKey: m.nox.key,      unit: m.nox.unit),
+                  (title: m.gasRaw.name,   fieldKey: m.gasRaw.key,   unit: m.gasRaw.unit),
                 ]),
               child: AtmosphericCard(
-              co2Name: co2Sensor.name,
+              co2Name: m.co2.name,
               co2Value: co2,
-              co2Unit: co2Sensor.unit,
-              pressureName: pressureSensor.name,
+              co2Unit: m.co2.unit,
+              pressureName: m.pressure.name,
               pressureValue: pressure,
-              pressureUnit: pressureSensor.unit,
-              vocName: vocSensor.name,
+              pressureUnit: m.pressure.unit,
+              vocName: m.voc.name,
               vocValue: voc,
-              noxName: noxSensor.name,
+              noxName: m.nox.name,
               noxValue: nox,
-              gasName: gasRawSensor.name,
+              gasName: m.gasRaw.name,
               gasRawValue: gasRaw,
             ),
           ),
@@ -133,19 +132,19 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 10),
           GestureDetector(
             onTap: () => openSelectorMenu(context, title: 'Détection', fields: [
-              (title: motionSensor.name, fieldKey: motionSensor.key, unit: motionSensor.unit),
-              (title: soundSensor.name, fieldKey: soundSensor.key, unit: soundSensor.unit),
-              (title: obstacleSensor.name, fieldKey: obstacleSensor.key, unit: obstacleSensor.unit),
-              (title: vibrationSensor.name, fieldKey: vibrationSensor.key, unit: vibrationSensor.unit),
+              (title: m.motion.name, fieldKey: m.motion.key, unit: m.motion.unit),
+              (title: m.sound.name, fieldKey: m.sound.key, unit: m.sound.unit),
+              (title: m.obstacle.name, fieldKey: m.obstacle.key, unit: m.obstacle.unit),
+              (title: m.vibration.name, fieldKey: m.vibration.key, unit: m.vibration.unit),
             ]),
             child: DetectionCard(
-              motionName: motionSensor.name,
+              motionName: m.motion.name,
               motionValue: motion,
-              soundName: soundSensor.name,
+              soundName: m.sound.name,
               soundValue: sound,
-              obstacleName: obstacleSensor.name,
+              obstacleName: m.obstacle.name,
               obstacleValue: obstacle,
-              vibrationName: vibrationSensor.name,
+              vibrationName: m.vibration.name,
               vibrationValue: vibration,
             ),
           ),

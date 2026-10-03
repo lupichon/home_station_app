@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'connection_service.dart';
-import '../models/sensor_model.dart';
+import 'connection_model.dart';
+import '../sensor_model.dart';
 
-class WifiService implements ConnectionService {
+class WifiConnection extends ConnectionModel {
   static final _baseUrl =
       dotenv.env['WIFI_AP_BASE_URL'] ?? 'http://192.168.4.1';
 
@@ -105,18 +105,18 @@ class WifiService implements ConnectionService {
     final vibration = json['vibration'] == 1 || json['vibration'] == true;
 
     _controller.add({
-      temperatureSensor.key: temperature,
-      humiditySensor.key:    humidity,
-      co2Sensor.key:         co2,
-      luminositySensor.key:  luminosity,
-      motionSensor.key:      motion,
-      soundSensor.key:       sound,
-      obstacleSensor.key:    obstacle,
-      vibrationSensor.key:   vibration,
-      gasRawSensor.key:      gasRaw, 
-      pressureSensor.key:    pressure,
-      vocSensor.key:         vocIndex,
-      noxSensor.key:         noxIndex,
+      SensorKeys.temperature: temperature,
+      SensorKeys.humidity:    humidity,
+      SensorKeys.co2:         co2,
+      SensorKeys.luminosity:  luminosity,
+      SensorKeys.motion:      motion,
+      SensorKeys.sound:       sound,
+      SensorKeys.obstacle:    obstacle,
+      SensorKeys.vibration:   vibration,
+      SensorKeys.gasRaw:      gasRaw, 
+      SensorKeys.pressure:    pressure,
+      SensorKeys.voc:         vocIndex,
+      SensorKeys.nox:         noxIndex,
     });
   }
 

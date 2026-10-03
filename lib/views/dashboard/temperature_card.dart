@@ -4,7 +4,7 @@ import '../widgets/card_label.dart';
 import '../widgets/card.dart';
 import '../widgets/badge.dart';
 import '../theme/app_theme.dart';
-import '../../utils/thresholds_handler.dart';
+import '../theme/quality.dart';
 
 class TemperatureCard extends StatelessWidget {
   final String? name;

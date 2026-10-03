@@ -1,30 +1,14 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:home_station_app/main.dart';
+import 'package:home_station_app/controllers/sensor_controller.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('SensorController parse les valeurs et calcule le score', () {
+    final c = SensorController();
+    c.updateFromJson({'TEMPERATURE': 22, 'HUMIDITY': 45, 'MOTION': true});
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(c.number(c.sensors.temperature), 22);
+    expect(c.flag(c.sensors.motion), isTrue);
+    expect(c.roomScore, inInclusiveRange(0, 100));
+    expect(c.lastUpdated, isNotNull);
   });
 }

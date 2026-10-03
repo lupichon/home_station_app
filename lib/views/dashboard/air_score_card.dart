@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/card.dart';
-import '../../utils/room_score.dart';
+import '../theme/quality.dart';
 
 class AirScoreCard extends StatelessWidget {
   final double score;

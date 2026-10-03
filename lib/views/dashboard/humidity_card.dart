@@ -4,7 +4,7 @@ import '../widgets/bar_indicator.dart';
 import '../widgets/card.dart';
 import '../widgets/card_label.dart';
 import '../widgets/badge.dart';
-import '../../utils/thresholds_handler.dart';
+import '../theme/quality.dart';
 
 class HumidityCard extends StatelessWidget {
   final String? name;

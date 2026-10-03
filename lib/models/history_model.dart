@@ -8,7 +8,7 @@ class HistoryPoint {
   HistoryPoint(this.time, this.value);
 }
 
-class DatacakeHistoryService {
+class DatacakeHistoryModel {
   static final _apiToken = dotenv.env['DATACAKE_API_TOKEN']!;
   static final _deviceId = dotenv.env['DATACAKE_DEVICE_ID']!;
   static const _url = 'https://api.datacake.co/graphql/';

@@ -1,5 +1,4 @@
-import 'thresholds_handler.dart';
-import '../views/theme/app_theme.dart';
+import 'thresholds.dart';
 
 const hardMinTemp = 12.0;
 const goodMinTemp = 20.0;
@@ -156,11 +155,4 @@ double computeRoomScore({
   final weightedAvg = weightedSum / usedWeight;
 
   return weightedAvg.clamp(0, 100);
-}
-
-Quality roomScoreQuality(double score) {
-  if (score >= 80) return ('Confortable', AppColors.green);
-  if (score >= 60) return ('Correct', AppColors.amber);
-  if (score >= 40) return ('Dégradé', AppColors.red);
-  return ('Inconfortable', AppColors.red);
 }

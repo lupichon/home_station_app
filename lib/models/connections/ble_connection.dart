@@ -2,16 +2,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'connection_service.dart';
-import '../models/sensor_model.dart';
+import 'connection_model.dart';
+import '../sensor_model.dart';
+import '../../utils/crypto.dart';
 
-/// Service BLE (GATT).
+/// Connexion BLE (GATT).
 ///
 /// Variables attendues dans le .env :
 ///   BLE_DEVICE_NAME   → nom affiché par le périphérique (ex: "HomeStation")
 ///   BLE_SERVICE_UUID  → UUID du service GATT (ex: "0000181a-0000-1000-8000-00805f9b34fb")
 ///   BLE_CHARACTERISTIC_UUID → UUID de la caractéristique notify
-class BleService implements ConnectionService {
+class BleConnection extends ConnectionModel {
   static final _targetName   = dotenv.env['BLE_DEVICE_NAME'] ?? '';
   static final _serviceUuid  = Guid(dotenv.env['BLE_SERVICE_UUID'] ?? '');
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
@@ -42,6 +43,8 @@ class BleService implements ConnectionService {
 
   @override
   String statusMessage = 'Disconnected';
+
+  late final Crypto _crypto = Crypto.fromEnv();
 
   @override
   Future<void> connect() async {
@@ -127,7 +130,11 @@ class BleService implements ConnectionService {
         return;
       }
 
-      final data = Uint8List.fromList(bytes);
+      final data = _crypto.decrypt(bytes);
+      if (data == null) {
+        debugPrint('BLE decryption failed');
+        return;
+      }
       final bd   = ByteData.sublistView(data);
 
       // Ordre des floats tel que défini dans serialize()
@@ -148,18 +155,18 @@ class BleService implements ConnectionService {
       final vibration = (flags >> 3) & 0x01 == 1;
 
       _controller.add({
-        temperatureSensor.key: temperature,
-        humiditySensor.key:    humidity,
-        co2Sensor.key:         co2,
-        luminositySensor.key:  luminosity,
-        motionSensor.key:      motion,
-        soundSensor.key:       sound,
-        obstacleSensor.key:    obstacle,
-        vibrationSensor.key:   vibration,
-        gasRawSensor.key:      gasRaw,
-        pressureSensor.key:    pressure,
-        vocSensor.key:         voc,
-        noxSensor.key:         nox,
+        SensorKeys.temperature: temperature,
+        SensorKeys.humidity:    humidity,
+        SensorKeys.co2:         co2,
+        SensorKeys.luminosity:  luminosity,
+        SensorKeys.motion:      motion,
+        SensorKeys.sound:       sound,
+        SensorKeys.obstacle:    obstacle,
+        SensorKeys.vibration:   vibration,
+        SensorKeys.gasRaw:      gasRaw,
+        SensorKeys.pressure:    pressure,
+        SensorKeys.voc:         voc,
+        SensorKeys.nox:         nox,
       });
     } catch (e) {
       debugPrint('BLE parse error: $e');
@@ -180,6 +187,10 @@ class BleService implements ConnectionService {
     }
   }
 
+  @override
+  bool get supportsAlarm => true;
+
+  @override
   Future<void> setAlarm(DateTime targetTime) async {
     if (_alarmTargetChar == null) {
       throw Exception('Not connected: alarm characteristic unavailable');
@@ -193,6 +204,7 @@ class BleService implements ConnectionService {
     await _alarmTargetChar!.write(bytes, withoutResponse: false);
   }
 
+  @override
   Future<void> cancelAlarm() async {
     if (_alarmTargetChar == null) {
       throw Exception('Not connected: alarm characteristic unavailable');

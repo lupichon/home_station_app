@@ -4,7 +4,7 @@ import '../widgets/card.dart';
 import '../widgets/badge.dart';
 import '../widgets/card_label.dart';  
 import '../widgets/bar_indicator.dart';
-import '../../utils/thresholds_handler.dart';
+import '../theme/quality.dart';
 
 class AtmosphericCard extends StatelessWidget {
   final String? co2Name;

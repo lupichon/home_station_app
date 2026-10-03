@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'connection_service.dart';
-import '../models/sensor_model.dart';
+import 'connection_model.dart';
+import '../sensor_model.dart';
 
-class LoraService implements ConnectionService {
+class LoraConnection extends ConnectionModel {
   static final _apiToken  = dotenv.env['DATACAKE_API_TOKEN']!;
   static final _deviceId  = dotenv.env['DATACAKE_DEVICE_ID']!;
   static const _pollInterval = Duration(seconds: 30);
@@ -91,8 +91,8 @@ class LoraService implements ConnectionService {
       final key = (m['field']['fieldName'] as String);
       final value = m['value'];
       // Convertit 0/1 en bool pour les champs booléens
-      if (key == motionSensor.key || key == soundSensor.key || key == obstacleSensor.key
-          || key == vibrationSensor.key) {
+      if (key == SensorKeys.motion || key == SensorKeys.sound || key == SensorKeys.obstacle
+          || key == SensorKeys.vibration) {
         result[key] = value == 1 || value == true;
       } else {
         result[key] = value;
