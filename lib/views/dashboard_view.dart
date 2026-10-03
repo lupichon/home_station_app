@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
 import '../controllers/connection_controller.dart';
 import '../controllers/sensor_controller.dart';
 import '../models/sensor_model.dart';
@@ -16,6 +17,7 @@ import 'settings_view.dart';
 import 'alarm_view.dart';
 import 'history_route.dart';
 import 'selector_history_menu.dart';
+import '../utils/app_version.dart';
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -151,6 +153,16 @@ class DashboardView extends StatelessWidget {
           const SizedBox(height: 20),
           AppLastUpdatedLabel(
               time: context.read<SensorController>().lastUpdated),
+
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              'v$appVersionString'
+              '${kDebugMode ? ' · debug' : kProfileMode ? ' · profile' : ''}',
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 12),
+            ),
+          ),
         ],
       ),
     );
