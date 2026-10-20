@@ -63,6 +63,7 @@ class LoraConnection extends ConnectionModel {
             fieldName
           }
           value
+          modified
         }
       }
     }
@@ -87,9 +88,20 @@ class LoraConnection extends ConnectionModel {
     final fieldsList = device['currentMeasurements'] as List;
 
     final result = <String, dynamic>{};
+    DateTime? latestMeasurementTime;
     for (final m in fieldsList) {
       final key = (m['field']['fieldName'] as String);
       final value = m['value'];
+      final modified = m['modified'];
+      if (modified != null) {
+        final measurementTime = DateTime.tryParse(modified.toString());
+        if (measurementTime != null &&
+            (latestMeasurementTime == null ||
+                measurementTime.isAfter(latestMeasurementTime))) {
+          latestMeasurementTime = measurementTime;
+        }
+      }
+
       // Convertit 0/1 en bool pour les champs booléens
       if (key == SensorKeys.motion || key == SensorKeys.sound || key == SensorKeys.obstacle
           || key == SensorKeys.vibration) {
@@ -97,6 +109,11 @@ class LoraConnection extends ConnectionModel {
       } else {
         result[key] = value;
       }
+    }
+
+    if (latestMeasurementTime != null) {
+      result[SensorKeys.measurementTimestamp] =
+          latestMeasurementTime.toIso8601String();
     }
 
     if (result.isNotEmpty) {

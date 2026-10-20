@@ -10,7 +10,10 @@ class SensorController extends ChangeNotifier {
     for (final sensor in sensors.all) {
       sensor.value = json[sensor.key]?.toString();
     }
-    lastUpdated = DateTime.now();
+    final measurementTimestamp = json[SensorKeys.measurementTimestamp];
+    lastUpdated = measurementTimestamp is String
+        ? DateTime.tryParse(measurementTimestamp)?.toLocal() ?? DateTime.now()
+        : DateTime.now();
     notifyListeners();
   }
 
