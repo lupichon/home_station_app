@@ -1,12 +1,12 @@
 import 'thresholds.dart';
 
 const hardMinTemp = 12.0;
-const goodMinTemp = 20.0;
-const goodMaxTemp = 26.0;
+const goodMinTemp = 19.0;
+const goodMaxTemp = 25.0;
 const hardMaxTemp = 32.0;
 
-const hardMinHumidity = 15.0;
-const goodMinHumidity = 30.0;
+const hardMinHumidity = 20.0;
+const goodMinHumidity = 40.0;
 const goodMaxHumidity = 60.0;
 const hardMaxHumidity = 80.0;
 
