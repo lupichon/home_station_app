@@ -21,10 +21,13 @@ class ConnectionController extends ChangeNotifier {
   bool get isConnected => _connection?.isConnected ?? false;
   String get statusMessage => _connection?.statusMessage ?? 'Disconnected';
 
-  bool get supportsAlarm => isConnected && (_connection?.supportsAlarm ?? false);
+  bool get supportsAlarm =>
+      isConnected && (_connection?.supportsAlarm ?? false);
+  bool get supportsWifiControl =>
+      isConnected && (_connection?.supportsWifiControl ?? false);
 
   ConnectionController(this.sensorController, [PreferencesModel? prefs])
-      : _prefs = prefs ?? PreferencesModel() {
+    : _prefs = prefs ?? PreferencesModel() {
     _loadPreferenceAndConnect();
   }
 
@@ -54,7 +57,7 @@ class ConnectionController extends ChangeNotifier {
     _connection = _buildConnection(type);
 
     _connection!.onConnectionChanged = () {
-      notifyListeners(); 
+      notifyListeners();
     };
 
     _dataSub = _connection!.dataStream.listen((data) {
@@ -76,7 +79,7 @@ class ConnectionController extends ChangeNotifier {
   ConnectionModel _buildConnection(ConnectionType type) {
     return switch (type) {
       ConnectionType.lora => LoraConnection(),
-      ConnectionType.ble  => BleConnection(),
+      ConnectionType.ble => BleConnection(),
       ConnectionType.wifi => WifiConnection(),
     };
   }
@@ -101,5 +104,13 @@ class ConnectionController extends ChangeNotifier {
       throw Exception('Alarm is only supported over BLE for now');
     }
     await connection.cancelAlarm();
+  }
+
+  Future<void> sendWifiControl(bool enabled) async {
+    final connection = _connection;
+    if (connection == null || !supportsWifiControl) {
+      throw Exception('Wi-Fi control is only supported over BLE');
+    }
+    await connection.setWifiEnabled(enabled);
   }
 }

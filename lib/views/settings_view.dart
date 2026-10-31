@@ -32,9 +32,68 @@ class SettingsView extends StatelessWidget {
               ),
             );
           }),
+          const SizedBox(height: 24),
+          const _SectionLabel('Device Wi-Fi'),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: conn.supportsWifiControl
+                      ? () => _setWifiEnabled(context, conn, true)
+                      : null,
+                  icon: const Icon(Icons.wifi),
+                  label: const Text('Allumer'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: conn.supportsWifiControl
+                      ? () => _setWifiEnabled(context, conn, false)
+                      : null,
+                  icon: const Icon(Icons.wifi_off),
+                  label: const Text('Éteindre'),
+                ),
+              ),
+            ],
+          ),
+          if (!conn.supportsWifiControl)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(
+                'Connecte-toi en Bluetooth pour contrôler le Wi-Fi du device.',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _setWifiEnabled(
+    BuildContext context,
+    ConnectionController connection,
+    bool enabled,
+  ) async {
+    try {
+      await connection.sendWifiControl(enabled);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            enabled
+                ? 'Commande Wi-Fi activée envoyée'
+                : 'Commande Wi-Fi désactivée envoyée',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erreur : $error')));
+    }
   }
 }
 

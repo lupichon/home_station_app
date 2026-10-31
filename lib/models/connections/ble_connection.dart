@@ -18,6 +18,7 @@ class BleConnection extends ConnectionModel {
   static final _charUuid     = Guid(dotenv.env['BLE_CHARACTERISTIC_UUID'] ?? '');
   static final _timeSyncUuid = Guid(dotenv.env['BLE_TIME_SYNC_UUID'] ?? '');
   static final _alarmTargetUuid = Guid(dotenv.env['BLE_ALARM_TARGET_UUID'] ?? '');
+  static final _wifiControlUuid = Guid(dotenv.env['BLE_WIFI_CONTROL_UUID'] ?? '');
   static const int _nbFloats    = 4;
   static const int _nbInt16     = 4;
   static const int _nbFlagByte  = 1;
@@ -29,6 +30,7 @@ class BleConnection extends ConnectionModel {
   StreamSubscription? _notifySub;
   StreamSubscription? _connectionStateSub;
   BluetoothCharacteristic? _alarmTargetChar;
+  BluetoothCharacteristic? _wifiControlChar;
 
   @override
   VoidCallback? onConnectionChanged;
@@ -66,7 +68,8 @@ class BleConnection extends ConnectionModel {
 
       _device = await completer.future.timeout(
         const Duration(seconds: 12),
-        onTimeout: () => throw TimeoutException('Device "$_targetName" not found'),
+        onTimeout: () =>
+            throw TimeoutException('Device "$_targetName" not found'),
       );
 
       await FlutterBluePlus.stopScan();
@@ -89,13 +92,22 @@ class BleConnection extends ConnectionModel {
 
       final timeSyncChar = service.characteristics.firstWhere(
         (c) => c.uuid == _timeSyncUuid,
-        orElse: () => throw Exception('Time Sync Characteristic UUID not found'),
+        orElse: () =>
+            throw Exception('Time Sync Characteristic UUID not found'),
       );
 
       _alarmTargetChar = service.characteristics.firstWhere(
         (c) => c.uuid == _alarmTargetUuid,
-        orElse: () => throw Exception('Alarm Target Characteristic UUID not found'),
+        orElse: () =>
+            throw Exception('Alarm Target Characteristic UUID not found'),
       );
+
+      final wifiControlCharacteristics = service.characteristics.where(
+        (c) => c.uuid == _wifiControlUuid,
+      );
+      _wifiControlChar = wifiControlCharacteristics.isEmpty
+          ? null
+          : wifiControlCharacteristics.first;
 
       // Activer les notifications
       await char.setNotifyValue(true);
@@ -126,7 +138,9 @@ class BleConnection extends ConnectionModel {
   void _onRawBytes(List<int> bytes) {
     try {
       if (bytes.length < _expectedLength) {
-        debugPrint('BLE frame too short: ${bytes.length} bytes (expected $_expectedLength)');
+        debugPrint(
+          'BLE frame too short: ${bytes.length} bytes (expected $_expectedLength)',
+        );
         return;
       }
 
@@ -135,7 +149,7 @@ class BleConnection extends ConnectionModel {
         debugPrint('BLE decryption failed');
         return;
       }
-      final bd   = ByteData.sublistView(data);
+      final bd = ByteData.sublistView(data);
 
       // Ordre des floats tel que défini dans serialize()
       final temperature = bd.getFloat32(0,  Endian.little);
@@ -214,6 +228,23 @@ class BleConnection extends ConnectionModel {
     await _alarmTargetChar!.write(bytes, withoutResponse: false);
   }
 
+  @override
+  bool get supportsWifiControl => _wifiControlChar != null;
+
+  @override
+  Future<void> setWifiEnabled(bool enabled) async {
+    final characteristic = _wifiControlChar;
+    if (characteristic == null) {
+      throw Exception(
+        'Not connected: Wi-Fi control characteristic unavailable',
+      );
+    }
+
+    await characteristic.write(
+      Uint8List.fromList([enabled ? 1 : 0]),
+      withoutResponse: false,
+    );
+  }
 
   @override
   Future<void> disconnect() async {

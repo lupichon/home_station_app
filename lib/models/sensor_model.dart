@@ -10,7 +10,7 @@ class SensorKeys {
   static const obstacle    = 'OBSTACLE';
   static const sound       = 'SOUND';
   static const vibration   = 'VIBRATION';
-  static const gasRaw      = 'GASSTATE';
+  static const gasRaw      = 'GASRAW';
   static const pressure    = 'PRESSURE';
   static const voc         = 'VOC';
   static const nox         = 'NOX';

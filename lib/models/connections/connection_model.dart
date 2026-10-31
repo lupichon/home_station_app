@@ -12,12 +12,17 @@ abstract class ConnectionModel {
   VoidCallback? onConnectionChanged;
 
   bool get supportsAlarm => false;
+  bool get supportsWifiControl => false;
 
   Future<void> setAlarm(DateTime targetTime) =>
       throw UnsupportedError('Alarm is not supported by this connection');
 
   Future<void> cancelAlarm() =>
       throw UnsupportedError('Alarm is not supported by this connection');
+
+  Future<void> setWifiEnabled(bool enabled) => throw UnsupportedError(
+    'Wi-Fi control is not supported by this connection',
+  );
 
   Future<void> connect();
   Future<void> disconnect();
