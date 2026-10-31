@@ -14,6 +14,7 @@ class SensorKeys {
   static const pressure    = 'PRESSURE';
   static const voc         = 'VOC';
   static const nox         = 'NOX';
+  static const flags       = 'FLAGS';
   static const measurementTimestamp = '_measurementTimestamp';
 }
 

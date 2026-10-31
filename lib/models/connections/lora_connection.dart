@@ -102,6 +102,15 @@ class LoraConnection extends ConnectionModel {
         }
       }
 
+      if (key == SensorKeys.flags) {
+        final f = (value is num) ? value.toInt() : int.tryParse('$value') ?? 0;
+        result[SensorKeys.motion]    = (f & 0x01) != 0;
+        result[SensorKeys.sound]     = (f & 0x02) != 0;
+        result[SensorKeys.obstacle]  = (f & 0x04) != 0;
+        result[SensorKeys.vibration] = (f & 0x08) != 0;
+        continue;
+      }
+
       // Convertit 0/1 en bool pour les champs booléens
       if (key == SensorKeys.motion || key == SensorKeys.sound || key == SensorKeys.obstacle
           || key == SensorKeys.vibration) {
