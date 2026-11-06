@@ -18,7 +18,7 @@ class DatacakeHistoryModel {
   Future<List<HistoryPoint>> fetchHistory({
     required String fieldKey,
     Duration lookback = const Duration(days: 7),
-    String resolution = '5 minutes',
+    String resolution = '10 minutes',
   }) async {
     final end = DateTime.now().toUtc();
     final start = end.subtract(lookback);
