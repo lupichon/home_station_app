@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'sensor_model.dart';
 
 class HistoryPoint {
   final DateTime time;
@@ -20,12 +22,15 @@ class DatacakeHistoryModel {
   }) async {
     final end = DateTime.now().toUtc();
     final start = end.subtract(lookback);
+    final historyFieldKey = SensorKeys.flagMasks.containsKey(fieldKey)
+        ? SensorKeys.flags
+        : fieldKey;
 
     final query = '''
       query {
         device(deviceId:"$_deviceId") {
           history(
-            fields:["$fieldKey"],
+            fields:["$historyFieldKey"],
             timerangestart:"${_fmt(start)}",
             timerangeend:"${_fmt(end)}",
             resolution:"$resolution"
@@ -50,7 +55,7 @@ class DatacakeHistoryModel {
     }
 
     final historyRaw = data['data']['device']['history'];
-    return _parse(historyRaw, fieldKey);
+    return parseHistory(historyRaw, fieldKey, historyFieldKey);
   }
 
   String _fmt(DateTime d) =>
@@ -60,23 +65,39 @@ class DatacakeHistoryModel {
       '${d.hour.toString().padLeft(2, '0')}:'
       '${d.minute.toString().padLeft(2, '0')}';
 
-  List<HistoryPoint> _parse(dynamic raw, String fieldKey) {
+  @visibleForTesting
+  static List<HistoryPoint> parseHistory(
+    dynamic raw,
+    String fieldKey,
+    String historyFieldKey,
+  ) {
     final list = jsonDecode(raw as String) as List;
+    final flagMask = SensorKeys.flagMasks[fieldKey];
 
     return list
-        .where((p) => p[fieldKey] != null)
+        .where((p) => p[historyFieldKey] != null)
         .map((p) {
           final time = DateTime.parse(p['time'] as String).toLocal();
-          final rawValue = p[fieldKey];
+          final rawValue = p[historyFieldKey];
 
           double value;
-          if (rawValue is bool) {
+          if (flagMask != null && rawValue is bool) {
+            value = rawValue ? 1.0 : 0.0;
+          } else if (flagMask != null && rawValue is num) {
+            value = (rawValue.toInt() & flagMask) != 0 ? 1.0 : 0.0;
+          } else if (flagMask != null && rawValue is String) {
+            final flagValue = int.tryParse(rawValue);
+            if (flagValue == null) {
+              throw Exception('Valeur FLAGS invalide: $rawValue');
+            }
+            value = (flagValue & flagMask) != 0 ? 1.0 : 0.0;
+          } else if (rawValue is bool) {
             value = rawValue ? 1.0 : 0.0;
           } else if (rawValue is num) {
             value = rawValue.toDouble();
           } else {
             throw Exception(
-              'Type inattendu pour $fieldKey: ${rawValue.runtimeType} ($rawValue)',
+              'Type inattendu pour $historyFieldKey: ${rawValue.runtimeType} ($rawValue)',
             );
           }
 

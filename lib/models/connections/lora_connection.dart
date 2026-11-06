@@ -104,10 +104,9 @@ class LoraConnection extends ConnectionModel {
 
       if (key == SensorKeys.flags) {
         final f = (value is num) ? value.toInt() : int.tryParse('$value') ?? 0;
-        result[SensorKeys.motion]    = (f & 0x01) != 0;
-        result[SensorKeys.sound]     = (f & 0x02) != 0;
-        result[SensorKeys.obstacle]  = (f & 0x04) != 0;
-        result[SensorKeys.vibration] = (f & 0x08) != 0;
+        for (final entry in SensorKeys.flagMasks.entries) {
+          result[entry.key] = (f & entry.value) != 0;
+        }
         continue;
       }
 

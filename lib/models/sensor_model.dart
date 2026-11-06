@@ -16,6 +16,12 @@ class SensorKeys {
   static const nox         = 'NOX';
   static const flags       = 'FLAGS';
   static const measurementTimestamp = '_measurementTimestamp';
+  static const flagMasks = <String, int>{
+    motion: 0x01,
+    sound: 0x02,
+    obstacle: 0x04,
+    vibration: 0x08,
+  };
 }
 
 class Sensor {
