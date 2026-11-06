@@ -20,11 +20,11 @@ const noxModerate = 100.0;
 const noxElevated = 250.0;
 const noxHigh     = 400.0;
 
-// Pression absolue (hPa) à Clermont-Ferrand (~330 m, moyenne ≈ 975 hPa)
-const pressureLow      = 960.0;
-const pressureNormal   = 985.0;
-const pressureHigh     = 995.0;
-const pressureVeryHigh = 1005.0;
+// Pression relative au niveau de la mer (hPa) à Clermont-Ferrand (~378 m)
+const pressureLow      = 1005.0;
+const pressureNormal   = 1020.0;
+const pressureHigh     = 1035.0;
+const pressureVeryHigh = 1050.0;
 
 // Éclairement intérieur (lux)
 const luminosityDark      = 20.0;
