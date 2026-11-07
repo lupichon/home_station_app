@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../models/history_model.dart';
+import '../models/history_data_repository.dart';
 
 class HistoryController extends ChangeNotifier {
   final String fieldKey;
-  final DatacakeHistoryModel _model;
+  final HistoryDataRepository _repository;
 
   // null = fenêtre glissante des dernières 24 h
   DateTime? _customStart;
@@ -13,8 +14,10 @@ class HistoryController extends ChangeNotifier {
   late DateTime _end;
   late Future<List<HistoryPoint>> _points;
 
-  HistoryController({required this.fieldKey, DatacakeHistoryModel? model})
-      : _model = model ?? DatacakeHistoryModel() {
+  HistoryController({
+    required this.fieldKey,
+    HistoryDataRepository? repository,
+  }) : _repository = repository ?? HistoryDataRepository() {
     _load();
   }
 
@@ -46,6 +49,10 @@ class HistoryController extends ChangeNotifier {
       _start = _customStart!;
       _end = _customEnd!.isAfter(now) ? now : _customEnd!;
     }
-    _points = _model.fetchHistory(fieldKey: fieldKey, start: _start, end: _end);
+    _points = _repository.fetchHistory(
+      fieldKey: fieldKey,
+      start: _start,
+      end: _end,
+    );
   }
 }

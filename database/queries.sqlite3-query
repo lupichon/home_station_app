@@ -1,0 +1,15 @@
+-- database: ./home_station_history.db
+
+-- To get the database : ./scripts/pull_history_database.sh
+
+-- Count the number of values per field key
+SELECT field_key, COUNT(*) AS value_count
+FROM history_points
+GROUP BY field_key
+ORDER BY field_key;
+
+-- Count the number of values per field key per day
+SELECT field_key, date(time_ms / 1000, 'unixepoch', 'localtime') AS day, COUNT(*) AS daily_value_count
+FROM history_points
+GROUP BY field_key, day
+ORDER BY field_key, day;

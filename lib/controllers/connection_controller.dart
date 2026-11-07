@@ -6,11 +6,13 @@ import '../models/connections/connection_model.dart';
 import '../models/connections/lora_connection.dart';
 import '../models/connections/ble_connection.dart';
 import '../models/connections/wifi_connection.dart';
+import '../models/history_data_repository.dart';
 import 'sensor_controller.dart';
 
 class ConnectionController extends ChangeNotifier {
   final SensorController sensorController;
   final PreferencesModel _prefs;
+  final HistoryDataRepository _historyRepository;
 
   ConnectionType _activeType = ConnectionType.lora;
   ConnectionType get activeType => _activeType;
@@ -26,8 +28,12 @@ class ConnectionController extends ChangeNotifier {
   bool get supportsWifiControl =>
       isConnected && (_connection?.supportsWifiControl ?? false);
 
-  ConnectionController(this.sensorController, [PreferencesModel? prefs])
-    : _prefs = prefs ?? PreferencesModel() {
+  ConnectionController(
+    this.sensorController, [
+    PreferencesModel? prefs,
+    HistoryDataRepository? historyRepository,
+  ])  : _prefs = prefs ?? PreferencesModel(),
+        _historyRepository = historyRepository ?? HistoryDataRepository() {
     _loadPreferenceAndConnect();
   }
 
@@ -67,6 +73,17 @@ class ConnectionController extends ChangeNotifier {
 
     await _connection!.connect();
     notifyListeners();
+    if (type == ConnectionType.lora && _connection!.isConnected) {
+      unawaited(_archiveRecentHistory());
+    }
+  }
+
+  Future<void> _archiveRecentHistory() async {
+    try {
+      await _historyRepository.archiveRecentHistory();
+    } catch (error) {
+      debugPrint('Datacake history archive failed: $error');
+    }
   }
 
   Future<void> _teardown() async {

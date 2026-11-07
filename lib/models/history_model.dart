@@ -20,21 +20,52 @@ class DatacakeHistoryModel {
     required DateTime start,
     required DateTime end,
   }) async {
+    final historyFieldKey = _historyFieldKey(fieldKey);
+    final raw = await _fetchRawHistory(
+      fields: [historyFieldKey],
+      start: start,
+      end: end,
+    );
+    return parseHistory(raw, fieldKey, historyFieldKey);
+  }
+
+  Future<Map<String, List<HistoryPoint>>> fetchAllHistory({
+    required DateTime start,
+    required DateTime end,
+  }) async {
+    final sensorKeys = SensorsModel().all.map((sensor) => sensor.key).toList();
+    final historyFields = sensorKeys.map(_historyFieldKey).toSet().toList();
+    final raw = await _fetchRawHistory(
+      fields: historyFields,
+      start: start,
+      end: end,
+    );
+
+    return {
+      for (final key in sensorKeys)
+        key: parseHistory(raw, key, _historyFieldKey(key)),
+    };
+  }
+
+  String _historyFieldKey(String fieldKey) =>
+      SensorKeys.flagMasks.containsKey(fieldKey) ? SensorKeys.flags : fieldKey;
+
+  Future<String> _fetchRawHistory({
+    required List<String> fields,
+    required DateTime start,
+    required DateTime end,
+  }) async {
     final span = end.difference(start);
-    final resolution = span <= const Duration(days: 3)
+    final resolution = span <= const Duration(days: 7)
         ? '10 minutes'
         : span <= const Duration(days: 14)
             ? '1 hour'
             : '1 day';
-    final historyFieldKey = SensorKeys.flagMasks.containsKey(fieldKey)
-        ? SensorKeys.flags
-        : fieldKey;
-
     final query = '''
       query {
         device(deviceId:"$_deviceId") {
           history(
-            fields:["$historyFieldKey"],
+            fields:${jsonEncode(fields)},
             timerangestart:"${_fmt(start)}",
             timerangeend:"${_fmt(end)}",
             resolution:"$resolution"
@@ -52,14 +83,19 @@ class DatacakeHistoryModel {
       body: jsonEncode({'query': query}),
     );
 
+    if (response.statusCode != 200) {
+      throw Exception('Datacake HTTP ${response.statusCode}');
+    }
     final data = jsonDecode(response.body);
-
     if (data['errors'] != null) {
       throw Exception('Datacake GraphQL error: ${data['errors']}');
     }
 
     final historyRaw = data['data']['device']['history'];
-    return parseHistory(historyRaw, fieldKey, historyFieldKey);
+    if (historyRaw is! String) {
+      throw Exception('Réponse historique Datacake invalide');
+    }
+    return historyRaw;
   }
 
   String _fmt(DateTime t) {

@@ -46,3 +46,6 @@ app.*.map.json
 
 # .env
 .env
+
+# Database
+database/home_station_history.db
