@@ -5,7 +5,12 @@ class HistoryController extends ChangeNotifier {
   final String fieldKey;
   final DatacakeHistoryModel _model;
 
-  Duration _lookback = const Duration(days: 1);
+  // null = fenêtre glissante des dernières 24 h
+  DateTime? _customStart;
+  DateTime? _customEnd;
+
+  late DateTime _start;
+  late DateTime _end;
   late Future<List<HistoryPoint>> _points;
 
   HistoryController({required this.fieldKey, DatacakeHistoryModel? model})
@@ -13,16 +18,34 @@ class HistoryController extends ChangeNotifier {
     _load();
   }
 
-  Duration get lookback => _lookback;
+  bool get isDefaultRange => _customStart == null;
+  DateTime get start => _start;
+  DateTime get end => _end;
   Future<List<HistoryPoint>> get points => _points;
 
-  void setLookback(Duration d) {
-    _lookback = d;
+  void setRange(DateTime start, DateTime end) {
+    _customStart = start;
+    _customEnd = end;
+    _load();
+    notifyListeners();
+  }
+
+  void resetRange() {
+    _customStart = null;
+    _customEnd = null;
     _load();
     notifyListeners();
   }
 
   void _load() {
-    _points = _model.fetchHistory(fieldKey: fieldKey, lookback: _lookback);
+    final now = DateTime.now();
+    if (_customStart == null) {
+      _end = now;
+      _start = now.subtract(const Duration(hours: 24));
+    } else {
+      _start = _customStart!;
+      _end = _customEnd!.isAfter(now) ? now : _customEnd!;
+    }
+    _points = _model.fetchHistory(fieldKey: fieldKey, start: _start, end: _end);
   }
 }

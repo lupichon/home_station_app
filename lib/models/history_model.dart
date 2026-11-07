@@ -17,11 +17,15 @@ class DatacakeHistoryModel {
 
   Future<List<HistoryPoint>> fetchHistory({
     required String fieldKey,
-    Duration lookback = const Duration(days: 7),
-    String resolution = '10 minutes',
+    required DateTime start,
+    required DateTime end,
   }) async {
-    final end = DateTime.now().toUtc();
-    final start = end.subtract(lookback);
+    final span = end.difference(start);
+    final resolution = span <= const Duration(days: 3)
+        ? '10 minutes'
+        : span <= const Duration(days: 14)
+            ? '1 hour'
+            : '1 day';
     final historyFieldKey = SensorKeys.flagMasks.containsKey(fieldKey)
         ? SensorKeys.flags
         : fieldKey;
@@ -58,12 +62,14 @@ class DatacakeHistoryModel {
     return parseHistory(historyRaw, fieldKey, historyFieldKey);
   }
 
-  String _fmt(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-'
-      '${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}T'
-      '${d.hour.toString().padLeft(2, '0')}:'
-      '${d.minute.toString().padLeft(2, '0')}';
+  String _fmt(DateTime t) {
+    final d = t.toUtc();
+    return '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}T'
+        '${d.hour.toString().padLeft(2, '0')}:'
+        '${d.minute.toString().padLeft(2, '0')}';
+  }
 
   @visibleForTesting
   static List<HistoryPoint> parseHistory(

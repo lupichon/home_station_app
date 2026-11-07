@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import '../controllers/history_controller.dart';
 import '../models/history_model.dart';
 import 'theme/app_theme.dart';
@@ -44,7 +45,12 @@ class _HistoryViewState extends State<HistoryView> {
         builder: (context, _) => Column(
           children: [
             _RangeSelector(
-                current: _controller.lookback, onChanged: _controller.setLookback),
+              start: _controller.start,
+              end: _controller.end,
+              isDefault: _controller.isDefaultRange,
+              onPick: _pickRange,
+              onReset: _controller.resetRange,
+            ),
             Expanded(
               child: FutureBuilder<List<HistoryPoint>>(
                 future: _controller.points,
@@ -59,7 +65,12 @@ class _HistoryViewState extends State<HistoryView> {
                   if (points.isEmpty) {
                     return const Center(child: Text('Aucune donnée sur cette période.'));
                   }
-                  return _LineChart(points: points, unit: widget.unit);
+                  return _LineChart(
+                    points: points,
+                    unit: widget.unit,
+                    start: _controller.start,
+                    end: _controller.end,
+                  );
                 },
               ),
             ),
@@ -68,39 +79,110 @@ class _HistoryViewState extends State<HistoryView> {
       ),
     );
   }
+
+  Future<void> _pickRange() async {
+    final now = DateTime.now();
+    final pickedDates = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: DateTimeRange(
+        start: DateUtils.dateOnly(_controller.start),
+        end: DateUtils.dateOnly(_controller.end),
+      ),
+    );
+    if (pickedDates == null || !mounted) return;
+
+    final pickedStartTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_controller.start),
+      helpText: 'Heure de début',
+    );
+    if (pickedStartTime == null || !mounted) return;
+
+    final pickedEndTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_controller.end),
+      helpText: 'Heure de fin',
+    );
+    if (pickedEndTime == null || !mounted) return;
+
+    final start = DateTime(
+      pickedDates.start.year,
+      pickedDates.start.month,
+      pickedDates.start.day,
+      pickedStartTime.hour,
+      pickedStartTime.minute,
+    );
+    final end = DateTime(
+      pickedDates.end.year,
+      pickedDates.end.month,
+      pickedDates.end.day,
+      pickedEndTime.hour,
+      pickedEndTime.minute,
+    );
+
+    if (!end.isAfter(start) || end.isAfter(now)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Choisissez une plage valide qui ne dépasse pas maintenant.'),
+        ),
+      );
+      return;
+    }
+    _controller.setRange(start, end);
+  }
 }
 
 // ─── Sélecteur de période ─────────────────────────────────────────────────────
 
 class _RangeSelector extends StatelessWidget {
-  final Duration current;
-  final ValueChanged<Duration> onChanged;
+  final DateTime start;
+  final DateTime end;
+  final bool isDefault;
+  final VoidCallback onPick;
+  final VoidCallback onReset;
 
-  const _RangeSelector({required this.current, required this.onChanged});
+  const _RangeSelector({
+    required this.start,
+    required this.end,
+    required this.isDefault,
+    required this.onPick,
+    required this.onReset,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final options = {
-      '24h': const Duration(days: 1),
-      '7j':  const Duration(days: 7),
-      '30j': const Duration(days: 30),
-    };
+    final fmt = DateFormat('dd/MM HH:mm');
+    final fullFmt = DateFormat('dd/MM/yyyy HH:mm');
+    final label = isDefault
+        ? 'Dernières 24 h'
+      : '${fmt.format(start)} → ${fmt.format(end)}';
+    final fullLabel = isDefault
+        ? label
+        : '${fullFmt.format(start)} → ${fullFmt.format(end)}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: options.entries.map((e) {
-          final selected = current == e.value;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ChoiceChip(
-              label: Text(e.key),
-              selected: selected,
-              onSelected: (_) => onChanged(e.value),
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: onPick,
+              icon: const Icon(Icons.date_range, size: 18),
+              label: Tooltip(
+                message: fullLabel,
+                child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ),
             ),
-          );
-        }).toList(),
+          ),
+          if (!isDefault)
+            IconButton(
+              tooltip: 'Revenir aux dernières 24 h',
+              onPressed: onReset,
+              icon: const Icon(Icons.restart_alt),
+            ),
+        ],
       ),
     );
   }
@@ -111,29 +193,72 @@ class _RangeSelector extends StatelessWidget {
 class _LineChart extends StatelessWidget {
   final List<HistoryPoint> points;
   final String unit;
+  final DateTime start;
+  final DateTime end;
 
-  const _LineChart({required this.points, required this.unit});
+  const _LineChart({
+    required this.points,
+    required this.unit,
+    required this.start,
+    required this.end,
+  });
+
+  static const _hourMs = 3600 * 1000;
+  static const _dayMs = 24 * _hourMs;
+
+  // Heure locale exprimée comme un "faux UTC" pour que les ticks tombent sur des heures locales rondes.
+  static int _localMs(DateTime t) {
+    final l = t.toLocal();
+    return l.millisecondsSinceEpoch + l.timeZoneOffset.inMilliseconds;
+  }
+
+  static int _tickInterval(Duration span) {
+    final h = span.inMinutes / 60;
+    if (h <= 6) return _hourMs;
+    if (h <= 12) return 2 * _hourMs;
+    if (h <= 30) return 4 * _hourMs;
+    if (h <= 54) return 8 * _hourMs;
+    if (h <= 96) return 12 * _hourMs;
+    return (h / 24 / 6).ceil() * _dayMs;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final spots = points.asMap().entries.map((e) {
-      return FlSpot(e.key.toDouble(), e.value.value);
-    }).toList();
+    final base = (_localMs(start) ~/ _dayMs) * _dayMs;
+    double xOf(DateTime t) => (_localMs(t) - base).toDouble();
+
+    final spots = points.map((p) => FlSpot(xOf(p.time), p.value)).toList();
 
     final minY = points.map((p) => p.value).reduce((a, b) => a < b ? a : b);
     final maxY = points.map((p) => p.value).reduce((a, b) => a > b ? a : b);
     final padding = ((maxY - minY) * 0.15).clamp(0.5, double.infinity);
 
-    // Pour les labels X : on affiche l'heure locale
-    String labelX(int index) {
-      final t = points[index].time.toLocal();
-      return '${t.hour.toString().padLeft(2, '0')}h';
+    final interval = _tickInterval(end.difference(start));
+
+    Widget? labelX(double v) {
+      // fl_chart ajoute aussi les bornes min/max, qui ne sont pas alignées
+      if (v % interval != 0) return null;
+      final t = DateTime.fromMillisecondsSinceEpoch((base + v).toInt(), isUtc: true);
+      final isDay = interval >= _dayMs || t.hour == 0;
+      final text = isDay
+          ? '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')}'
+          : '${t.hour.toString().padLeft(2, '0')}h';
+      return Text(
+        text,
+        style: TextStyle(
+          fontSize: 10,
+          color: AppColors.textSecondary,
+          fontWeight: isDay ? FontWeight.bold : FontWeight.normal,
+        ),
+      );
     }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 24, 24),
       child: LineChart(
         LineChartData(
+          minX: xOf(start),
+          maxX: xOf(end),
           minY: minY - padding,
           maxY: maxY + padding,
           gridData: FlGridData(
@@ -160,15 +285,11 @@ class _LineChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 28,
-                interval: (points.length / 6).ceilToDouble(),
-                getTitlesWidget: (v, _) {
-                  final i = v.toInt();
-                  if (i < 0 || i >= points.length) return const SizedBox();
-                  return Text(
-                    labelX(i),
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                  );
-                },
+                interval: interval.toDouble(),
+                getTitlesWidget: (v, meta) => SideTitleWidget(
+                  meta: meta,
+                  child: labelX(v) ?? const SizedBox(),
+                ),
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -177,8 +298,8 @@ class _LineChart extends StatelessWidget {
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
               getTooltipItems: (spots) => spots.map((s) {
-                final t = points[s.x.toInt()].time.toLocal();
-                final time = '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+                final t = points[s.spotIndex].time.toLocal();
+                final time = DateFormat('dd/MM HH:mm').format(t);
                 return LineTooltipItem(
                   '$time\n${s.y.toStringAsFixed(1)}$unit',
                   const TextStyle(color: Colors.white, fontSize: 12),
